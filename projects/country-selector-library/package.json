@@ -8,5 +8,9 @@
   "dependencies": {
     "tslib": "^2.3.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evicio1/ngx-country-selector.git"
+  },
   "sideEffects": false
 }
