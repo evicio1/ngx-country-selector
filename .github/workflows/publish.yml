@@ -3,7 +3,7 @@ name: Publish to npm
 on:
   push:
     branches:
-      - master  # Change this to 'master'
+      - master  # Change this back to 'master'
   workflow_dispatch:
 
 jobs:
@@ -23,10 +23,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build the project
-        run: npm run build
+      - name: Build the library
+        run: npm run build -- --project=country-selector-library
 
       - name: Publish to npm
-        run: npm publish
+        run: npm publish dist/country-selector-library
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
