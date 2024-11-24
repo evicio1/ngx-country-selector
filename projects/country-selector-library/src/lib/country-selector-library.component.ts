@@ -28,32 +28,31 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
-  selector: 'lib-country-selector',
-  standalone: true,
-  imports: [FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatAutocompleteModule,
-    ReactiveFormsModule,
-    MatProgressBarModule,
-    MatIconModule,
-    MatDividerModule
-  ],
-  templateUrl: './country-selector-library.component.html',
-  styleUrl: './country-selector-library.component.scss',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => CountrySelectorLibraryComponent),
-      multi: true
-    },
-    {
-      provide: NG_VALIDATORS,
-      multi: true,
-      useExisting:forwardRef(() => CountrySelectorLibraryComponent),
-    }
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'lib-country-selector',
+    imports: [FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatAutocompleteModule,
+        ReactiveFormsModule,
+        MatProgressBarModule,
+        MatIconModule,
+        MatDividerModule
+    ],
+    templateUrl: './country-selector-library.component.html',
+    styleUrl: './country-selector-library.component.scss',
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => CountrySelectorLibraryComponent),
+            multi: true
+        },
+        {
+            provide: NG_VALIDATORS,
+            multi: true,
+            useExisting: forwardRef(() => CountrySelectorLibraryComponent),
+        }
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CountrySelectorLibraryComponent implements OnInit, ControlValueAccessor, Validator  {
   readonly label = input('');

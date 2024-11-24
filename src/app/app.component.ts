@@ -10,18 +10,17 @@ import { ICountry } from '../../projects/country-selector-library/src/public-api
 
 
 @Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [ CountrySelectorLibraryComponent,
-    FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatAutocompleteModule,
-    ReactiveFormsModule,
-    MatSlideToggleModule,
-  ],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+    selector: 'app-root',
+    imports: [CountrySelectorLibraryComponent,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatAutocompleteModule,
+        ReactiveFormsModule,
+        MatSlideToggleModule,
+    ],
+    templateUrl: './app.component.html',
+    styleUrl: './app.component.scss'
 })
 
 export class AppComponent {
