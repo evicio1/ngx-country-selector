@@ -2,13 +2,13 @@
 <form [formGroup]="loginForm" autocomplete="off" novalidate (ngSubmit)="onSubmit()">
 
   <lib-country-selector
-  [allowedCountryCodes]="allowedCountryCode"
+  [allowedCountryCodes]="allowedCountryCode()"
   [countryListConfig]="config"
   [selectedCountryConfig]="selectedConfig"
-  [loading]="false"
-  [readonly]="false"
+  [loading]="loading()"
+  [readonly]="readonly() || loading()"
   label="Country"
-  [clearable]="true"
+  [clearable]="!shouldCountryLocked()"
   [customNaming]="{ gb: 'United Kingdom'}"
   formControlName="country"
   (onCountryChange)="onCountryChange($event)"

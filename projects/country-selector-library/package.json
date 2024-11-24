@@ -1,12 +1,16 @@
 {
   "name": "ngx-country-selector",
-  "version": "18.2.0",
+  "version": "18.2.1",
   "peerDependencies": {
     "@angular/common": "^18.2.0",
     "@angular/core": "^18.2.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/evicio1/ngx-country-selector.git"
   },
   "sideEffects": false
 }
