@@ -2,7 +2,8 @@ import { ICountry } from './models';
 
 export const COUNTRIES_LIST: ICountry[] = [
   {
-    name: 'Afghanistan', localName: '‫افغانستان‬‎',
+    name: 'Afghanistan',
+    localName: '‫افغانستان‬‎',
     code: 'AF',
     capital: 'Kabul',
     region: 'AS',
