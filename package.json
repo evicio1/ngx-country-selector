@@ -5,8 +5,10 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:lib": "ng build --project=country-selector-library",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "publish:lib": "npm run build:lib && cd dist/country-selector-library && npm publish --access public"
   },
   "private": true,
   "dependencies": {
