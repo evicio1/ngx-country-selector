@@ -29,10 +29,14 @@ To publish to npm automatically via GitHub Actions, you need to:
 The workflow will automatically:
 
 - Check if the current version already exists on npm
-- If it exists, automatically bump the patch version
+- **Stop and fail if the version exists** (you need to manually update the version)
 - Build the library
-- Publish to npm
+- Publish to npm only if the version is new
+- **Create a GitHub Release** with release notes and package tarball
+- **Publish to GitHub Packages** (as @evicio1/ngx-country-selector)
 - Create a git tag for the published version
+
+**Important**: The workflow no longer auto-bumps versions. If you try to publish an existing version, the workflow will fail with clear instructions to update the version manually.
 
 ### 3. Manual Publishing (Alternative)
 
@@ -66,17 +70,57 @@ npm publish --access public
    - Added `packages: write` permission for npm publishing
    - Configured proper authentication with GitHub token
 
+## Installation Options
+
+After publishing, users can install your package from multiple sources:
+
+### From NPM (Primary)
+
+```bash
+npm install ngx-country-selector
+```
+
+### From GitHub Packages
+
+```bash
+# First, configure npm to use GitHub Packages for @evicio1 scope
+echo "@evicio1:registry=https://npm.pkg.github.com" >> ~/.npmrc
+
+# Then install
+npm install @evicio1/ngx-country-selector
+```
+
+### From GitHub Releases
+
+Users can also download the tarball directly from the Releases page:
+
+- Go to: https://github.com/evicio1/ngx-country-selector/releases
+- Download the `.tgz` file
+- Install locally: `npm install path/to/ngx-country-selector-x.x.x.tgz`
+
 ## Current Package Information
 
 - **Package Name**: ngx-country-selector
-- **Current Version**: 19.1.3
+- **Current Version**: 19.1.5
 - **NPM URL**: https://www.npmjs.com/package/ngx-country-selector
+- **GitHub Packages**: @evicio1/ngx-country-selector
 - **Repository**: https://github.com/evicio1/ngx-country-selector
+- **Releases**: https://github.com/evicio1/ngx-country-selector/releases
+- **Packages**: https://github.com/evicio1/ngx-country-selector/packages
 
 ## Publishing Process
 
 1. Make your changes to the library
-2. Update version in `projects/country-selector-library/package.json` if needed
+2. **Update version in `projects/country-selector-library/package.json` to a new version**
 3. Commit and push to master branch
-4. GitHub Actions will automatically build and publish
-5. Check https://www.npmjs.com/package/ngx-country-selector for the new version
+4. GitHub Actions will automatically:
+   - Build and publish to npm (if version is new)
+   - Create a GitHub Release with release notes and downloadable package
+   - Publish to GitHub Packages as `@evicio1/ngx-country-selector`
+   - Create a Git tag
+5. Check the results:
+   - **npm**: https://www.npmjs.com/package/ngx-country-selector
+   - **GitHub Releases**: https://github.com/evicio1/ngx-country-selector/releases
+   - **GitHub Packages**: https://github.com/evicio1/ngx-country-selector/packages
+
+**Note**: If you forget to update the version and it already exists on npm, the workflow will fail with a clear message telling you to update the version.
