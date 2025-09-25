@@ -61,6 +61,11 @@ npm publish --access public
 
 3. **Missing files**: The workflow now copies README.md and LICENSE.txt to the dist folder
 
+4. **Write access to repository not granted**: Fixed by adding proper permissions to the GitHub Actions workflow:
+   - Added `contents: write` permission for creating and pushing Git tags
+   - Added `packages: write` permission for npm publishing
+   - Configured proper authentication with GitHub token
+
 ## Current Package Information
 
 - **Package Name**: ngx-country-selector
