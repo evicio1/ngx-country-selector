@@ -51,38 +51,33 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           CURRENT_VERSION="${{ steps.current_version.outputs.version }}"
+          echo "Checking if version $CURRENT_VERSION exists on npm..."
+
+          # Check if the version exists on npm
           if npm view ngx-country-selector@$CURRENT_VERSION version 2>/dev/null; then
             echo "exists=true" >> $GITHUB_OUTPUT
-            echo "Version $CURRENT_VERSION already exists on npm"
+            echo "❌ Version $CURRENT_VERSION already exists on npm"
+
+            # Get the latest version and suggest next version
+            LATEST_VERSION=$(npm view ngx-country-selector version)
+            echo "Latest version on npm: $LATEST_VERSION"
           else
             echo "exists=false" >> $GITHUB_OUTPUT
-            echo "Version $CURRENT_VERSION does not exist on npm"
+            echo "✅ Version $CURRENT_VERSION does not exist on npm, proceeding with publish"
           fi
 
-      - name: Bump version
+      - name: Stop if version exists
         if: steps.check_version.outputs.exists == 'true'
         run: |
-          cd projects/country-selector-library
-          npm version patch --no-git-tag-version
-          NEW_VERSION=$(node -p "require('./package.json').version")
-          echo "Bumped version to $NEW_VERSION"
-
-      - name: Commit version bump
-        if: steps.check_version.outputs.exists == 'true'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          NEW_VERSION=$(node -p "require('./projects/country-selector-library/package.json').version")
-          git add projects/country-selector-library/package.json
-          git commit -m "Bump version to $NEW_VERSION [skip ci]"
-          git remote set-url origin https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }}.git
-          git push origin HEAD:${{ github.ref_name }}
-
-      - name: Rebuild after version bump
-        if: steps.check_version.outputs.exists == 'true'
-        run: npm run build -- --project=country-selector-library
+          echo "❌ Cannot publish: Version ${{ steps.current_version.outputs.version }} already exists on npm"
+          echo "Please update the version in projects/country-selector-library/package.json"
+          echo "Current version: ${{ steps.current_version.outputs.version }}"
+          LATEST_VERSION=$(npm view ngx-country-selector version)
+          echo "Latest version on npm: $LATEST_VERSION"
+          exit 1
 
       - name: Verify npm auth
+        if: steps.check_version.outputs.exists == 'false'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
@@ -91,11 +86,13 @@ jobs:
           npm whoami
 
       - name: Copy additional files to dist
+        if: steps.check_version.outputs.exists == 'false'
         run: |
           cp README.md dist/country-selector-library/
           cp LICENSE.txt dist/country-selector-library/
 
       - name: Show package info
+        if: steps.check_version.outputs.exists == 'false'
         run: |
           echo "Publishing package info:"
           cd dist/country-selector-library
@@ -104,6 +101,7 @@ jobs:
           ls -la
 
       - name: Publish to npm
+        if: steps.check_version.outputs.exists == 'false'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
@@ -113,6 +111,7 @@ jobs:
           npm publish --access public
 
       - name: Check if tag already exists
+        if: steps.check_version.outputs.exists == 'false'
         id: check_tag
         run: |
           PUBLISHED_VERSION=$(node -p "require('./dist/country-selector-library/package.json').version")
@@ -125,7 +124,8 @@ jobs:
           fi
 
       - name: Create and push git tag
-        if: success() && steps.check_tag.outputs.exists == 'false'
+        if: steps.check_version.outputs.exists == 'false' && success() && steps.check_tag.outputs.exists == 'false'
+        id: create_tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -134,3 +134,83 @@ jobs:
           git tag "v$PUBLISHED_VERSION"
           git remote set-url origin https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }}.git
           git push origin "v$PUBLISHED_VERSION"
+          echo "tag_name=v$PUBLISHED_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Generate release notes
+        if: steps.check_version.outputs.exists == 'false' && success() && steps.check_tag.outputs.exists == 'false'
+        id: release_notes
+        run: |
+          VERSION="${{ steps.current_version.outputs.version }}"
+          echo "Generating release notes for version $VERSION"
+
+          # Create release notes
+          cat > release_notes.md << EOF
+          ## 🚀 ngx-country-selector v$VERSION
+
+          ### What's New
+          - Updated Angular Country Selector component
+          - Built with Angular 19.1.2
+          - Published to npm: https://www.npmjs.com/package/ngx-country-selector
+
+          ### Installation
+          \`\`\`bash
+          npm install ngx-country-selector@$VERSION
+          \`\`\`
+
+          ### Package Information
+          - **Package Size**: $(du -sh dist/country-selector-library | cut -f1)
+          - **Angular Version**: ^19.1.2
+          - **Dependencies**: tslib ^2.3.0
+
+          ### Links
+          - 📦 [NPM Package](https://www.npmjs.com/package/ngx-country-selector)
+          - 📚 [Documentation](https://github.com/${{ github.repository }}#readme)
+          - 🐛 [Report Issues](https://github.com/${{ github.repository }}/issues)
+          EOF
+
+          echo "Release notes created"
+
+      - name: Create package tarball
+        if: steps.check_version.outputs.exists == 'false' && success()
+        run: |
+          cd dist/country-selector-library
+          npm pack
+          TARBALL_NAME=$(ls *.tgz)
+          echo "tarball_name=$TARBALL_NAME" >> $GITHUB_ENV
+          echo "Created tarball: $TARBALL_NAME"
+
+      - name: Create GitHub Release
+        if: steps.check_version.outputs.exists == 'false' && success() && steps.check_tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.create_tag.outputs.tag_name }}
+          name: "🚀 ngx-country-selector v${{ steps.current_version.outputs.version }}"
+          body_path: release_notes.md
+          files: |
+            dist/country-selector-library/*.tgz
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+
+      - name: Setup Node.js for GitHub Packages
+        if: steps.check_version.outputs.exists == 'false' && success()
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@evicio1'
+
+      - name: Publish to GitHub Packages
+        if: steps.check_version.outputs.exists == 'false' && success()
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd dist/country-selector-library
+
+          # Update package.json for GitHub Packages
+          jq '.name = "@evicio1/ngx-country-selector"' package.json > temp.json && mv temp.json package.json
+
+          echo "Publishing to GitHub Packages..."
+          npm publish --access public

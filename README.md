@@ -1,6 +1,6 @@
 # ngx-country-selector
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.0.
+This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 19.1.0.
 
 ## Getting started
 
@@ -9,6 +9,7 @@ This library was generated with [Angular CLI](https://github.com/angular/angular
 ```
 npm i ngx-country-selector
 ```
+
 2. Add the CSS
    Either import the CSS directly to styles.scss file
 
@@ -123,6 +124,7 @@ npm i ngx-country-selector
 </tbody></table>
 
 ### Reactive forms
+
 ```
  loginForm = new FormGroup({
       username: new FormControl('', [Validators.required]),
@@ -131,7 +133,7 @@ npm i ngx-country-selector
          Validators.required), // need to send both validator and required input value to make it work
     });
 ```
- 
+
 ```
   <lib-country-selector
   [allowedCountryCodes]="allowedCountryCode()"
@@ -147,7 +149,8 @@ npm i ngx-country-selector
   error="Country is required"
   [required]="true"
   ></lib-country-selector>
-  ```
+```
+
 ### IConfig properties and usage
 
 Config properties can be used to control what will be displayed in the country list and for the selected country.
@@ -158,7 +161,7 @@ Exported interface
 export interface IConfig {
   hideFlag?: boolean;
   hideCode?: boolean;
-  hideName?: boolean;  
+  hideName?: boolean;
   showLocalName?: boolean;
   hideSearch?: boolean;
   hideDialCode?: boolean;
@@ -254,7 +257,7 @@ output in console
 
 ```
 {
-    name: 'Afghanistan', 
+    name: 'Afghanistan',
     localName: '‫افغانستان‬‎',
     code: 'AF',
     capital: 'Kabul',
@@ -305,7 +308,7 @@ export interface ILanguage {
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE.txt) file for details.
 
 ## Acknowledgment
 
