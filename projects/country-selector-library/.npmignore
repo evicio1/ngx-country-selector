@@ -1,0 +1,27 @@
+# Source files
+src/
+*.ts
+!*.d.ts
+
+# Development files
+.angular/
+.vscode/
+node_modules/
+*.tgz
+
+# Testing
+*.spec.ts
+karma.conf.js
+tsconfig.spec.json
+
+# Documentation
+*.md
+!README.md
+
+# Git
+.git
+.gitignore
+
+# Build files that shouldn't be in npm package
+angular.json
+tsconfig.json

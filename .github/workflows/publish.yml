@@ -12,10 +12,10 @@ jobs:
 
     steps:
       - name: Checkout code
-      # fetch-depth: 0 helps if you later add semantic-release or read git tags
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -23,10 +23,47 @@ jobs:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Configure Git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+
       - name: Install dependencies
         run: npm ci
 
       - name: Build the library
+        run: npm run build -- --project=country-selector-library
+
+      - name: Get current version
+        id: current_version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./projects/country-selector-library/package.json').version")
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if version exists on npm
+        id: check_version
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          CURRENT_VERSION="${{ steps.current_version.outputs.version }}"
+          if npm view ngx-country-selector@$CURRENT_VERSION version 2>/dev/null; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Version $CURRENT_VERSION already exists on npm"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Version $CURRENT_VERSION does not exist on npm"
+          fi
+
+      - name: Bump version
+        if: steps.check_version.outputs.exists == 'true'
+        run: |
+          cd projects/country-selector-library
+          npm version patch --no-git-tag-version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "Bumped version to $NEW_VERSION"
+
+      - name: Rebuild after version bump
+        if: steps.check_version.outputs.exists == 'true'
         run: npm run build -- --project=country-selector-library
 
       - name: Verify npm auth
@@ -37,9 +74,23 @@ jobs:
           node -v
           npm whoami
 
+      - name: Copy additional files to dist
+        run: |
+          cp README.md dist/country-selector-library/
+          cp LICENSE.txt dist/country-selector-library/
+
       - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          # adjust the path if your build output differs
-          npm publish dist/country-selector-library --access public
+          cd dist/country-selector-library
+          # Remove any problematic git references
+          rm -rf .git 2>/dev/null || true
+          npm publish --access public
+
+      - name: Create and push git tag
+        if: success()
+        run: |
+          PUBLISHED_VERSION=$(node -p "require('./dist/country-selector-library/package.json').version")
+          git tag "v$PUBLISHED_VERSION"
+          git push origin "v$PUBLISHED_VERSION"
