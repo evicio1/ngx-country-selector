@@ -9,6 +9,10 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required to push tags
+      packages: write  # Required for npm publishing
+      id-token: write  # Required for npm provenance
 
     steps:
       - name: Checkout code
@@ -16,6 +20,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -62,6 +67,17 @@ jobs:
           NEW_VERSION=$(node -p "require('./package.json').version")
           echo "Bumped version to $NEW_VERSION"
 
+      - name: Commit version bump
+        if: steps.check_version.outputs.exists == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW_VERSION=$(node -p "require('./projects/country-selector-library/package.json').version")
+          git add projects/country-selector-library/package.json
+          git commit -m "Bump version to $NEW_VERSION [skip ci]"
+          git remote set-url origin https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }}.git
+          git push origin HEAD:${{ github.ref_name }}
+
       - name: Rebuild after version bump
         if: steps.check_version.outputs.exists == 'true'
         run: npm run build -- --project=country-selector-library
@@ -79,6 +95,14 @@ jobs:
           cp README.md dist/country-selector-library/
           cp LICENSE.txt dist/country-selector-library/
 
+      - name: Show package info
+        run: |
+          echo "Publishing package info:"
+          cd dist/country-selector-library
+          cat package.json | jq '{name, version, repository}'
+          echo "Package contents:"
+          ls -la
+
       - name: Publish to npm
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -88,9 +112,25 @@ jobs:
           rm -rf .git 2>/dev/null || true
           npm publish --access public
 
-      - name: Create and push git tag
-        if: success()
+      - name: Check if tag already exists
+        id: check_tag
         run: |
           PUBLISHED_VERSION=$(node -p "require('./dist/country-selector-library/package.json').version")
+          if git rev-parse "v$PUBLISHED_VERSION" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag v$PUBLISHED_VERSION already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag v$PUBLISHED_VERSION does not exist"
+          fi
+
+      - name: Create and push git tag
+        if: success() && steps.check_tag.outputs.exists == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PUBLISHED_VERSION=$(node -p "require('./dist/country-selector-library/package.json').version")
+          echo "Creating and pushing tag v$PUBLISHED_VERSION"
           git tag "v$PUBLISHED_VERSION"
+          git remote set-url origin https://x-access-token:$GITHUB_TOKEN@github.com/${{ github.repository }}.git
           git push origin "v$PUBLISHED_VERSION"
