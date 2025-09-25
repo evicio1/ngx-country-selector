@@ -1,6 +1,6 @@
 # ngx-country-selector
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 19.1.0.
+This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 20.3.2.
 
 ## Getting started
 

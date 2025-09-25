@@ -101,12 +101,47 @@ Users can also download the tarball directly from the Releases page:
 ## Current Package Information
 
 - **Package Name**: ngx-country-selector
-- **Current Version**: 19.1.5
+- **Current Version**: 20.0.0
+- **Angular Version**: 20+ (any 20.x version)
 - **NPM URL**: https://www.npmjs.com/package/ngx-country-selector
 - **GitHub Packages**: @evicio1/ngx-country-selector
 - **Repository**: https://github.com/evicio1/ngx-country-selector
 - **Releases**: https://github.com/evicio1/ngx-country-selector/releases
 - **Packages**: https://github.com/evicio1/ngx-country-selector/packages
+
+## Versioning Strategy
+
+Starting with version 20.0.0, this library follows a **Major-Minor-Patch** pattern aligned with Angular:
+
+### Format: `[ANGULAR_MAJOR].[FEATURE].[PATCH]`
+
+- **Major Version** (20.x.x): Matches Angular major version
+  - `20.x.x` = Compatible with Angular 20+ (any 20.x version)
+  - `21.x.x` = Compatible with Angular 21+ (any 21.x version)
+- **Minor Version** (x.1.x): New features, enhancements, non-breaking changes
+  - `20.1.0` = New feature added
+  - `20.2.0` = Another feature added
+- **Patch Version** (x.x.1): Bug fixes, minor improvements
+  - `20.0.1` = Bug fix
+  - `20.1.1` = Bug fix for v20.1.0
+
+### Examples:
+
+```bash
+# Angular 20 support with flexible compatibility
+npm install ngx-country-selector@20.0.0  # Works with Angular 20.0.x, 20.1.x, 20.2.x, 20.3.x
+
+# Future versions
+npm install ngx-country-selector@20.1.0  # New features for Angular 20
+npm install ngx-country-selector@21.0.0  # Angular 21 support
+```
+
+### Benefits:
+
+- ✅ **Clear Angular compatibility** - Major version tells you Angular support
+- ✅ **Flexible updates** - Works with any Angular patch/minor updates
+- ✅ **Independent evolution** - Library can evolve with its own minor/patch releases
+- ✅ **Predictable upgrades** - Only major version changes require Angular updates
 
 ## Publishing Process
 
