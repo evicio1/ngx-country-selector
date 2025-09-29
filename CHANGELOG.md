@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file.
 
+## [20.0.1] - 2025-09-29
+
+### 🚀 Performance & Stability Update
+
+#### Added
+
+- **Zoneless Change Detection**: Migrated to Angular 20's modern zoneless change detection for better performance
+- Missing password field in demo form (was causing validation issues)
+- Enhanced form validation state management for Angular 20 compatibility
+
+#### Fixed
+
+- **CRITICAL**: Form validation issues after Angular 19→20 migration
+  - Fixed ControlValueAccessor implementation in country selector component
+  - Resolved validation timing issues with custom form controls
+  - Proper validation state synchronization between component and parent forms
+- Form submission validation - now correctly validates all required fields
+- Merge conflicts resolution maintaining zoneless implementation
+- Missing password input field in demo application
+
+#### Improved
+
+- **Performance**: Removed zone.js dependency for smaller bundle size and faster change detection
+- Cleaner ControlValueAccessor implementation without manual change detection calls
+- Modern signal-based reactive patterns throughout the application
+- Better error handling and debugging support for form validation
+
+#### Changed
+
+- **BREAKING (Development)**: Removed zone.js dependency - applications can now optionally use zoneless change detection
+- Updated app configuration to use `provideZonelessChangeDetection()`
+- Simplified component lifecycle management without manual change detection
+- Enhanced form control validation patterns for Angular 20
+
+#### Bundle Size
+
+- Reduced JavaScript bundle size by removing zone.js dependency
+- Faster application startup and runtime performance
+
+#### Migration Notes
+
+- Applications can now optionally migrate to zoneless change detection
+- Existing zone-based applications will continue to work normally
+- Form validation is now more reliable and Angular 20 compliant
+
+---
+
 ## [20.0.0] - 2025-09-25
 
 ### 🚀 Major Update: Angular 20 Support
