@@ -83,10 +83,6 @@ export class AppComponent {
     
     
     // Check each control
-    Object.keys(this.loginForm.controls).forEach(key => {
-      const control = this.loginForm.get(key);
-      
-    });
     
     if(this.loginForm.invalid) {
       alert('Please fill all the required fields');
