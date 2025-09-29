@@ -175,11 +175,6 @@ export class CountrySelectorLibraryComponent implements OnInit, AfterViewInit, C
     }
   }
 
-  ngAfterViewInit(): void {
-    // In zoneless mode, signals will automatically trigger change detection
-    // No manual validation state update needed
-  }
-
   registerOnChange(fn: (value: ICountry | null) => void): void {
     this.onChange = fn;
   }
