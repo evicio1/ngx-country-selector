@@ -76,16 +76,16 @@ export class AppComponent {
   }
 
   onSubmit = () => {
-    console.log('=== Form Submission Debug ===');
-    console.log('Form status:', this.loginForm.status);
-    console.log('Form value:', this.loginForm.value);
-    console.log('Form errors:', this.loginForm.errors);
-    console.log('Selected country signal:', this.selectedCountry());
+    
+    
+    
+    
+    
     
     // Check each control
     Object.keys(this.loginForm.controls).forEach(key => {
       const control = this.loginForm.get(key);
-      console.log(`${key} control - status: ${control?.status}, value:`, control?.value, 'errors:', control?.errors);
+      
     });
     
     if(this.loginForm.invalid) {
