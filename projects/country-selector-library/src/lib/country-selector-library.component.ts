@@ -188,14 +188,6 @@ export class CountrySelectorLibraryComponent implements OnInit, AfterViewInit, C
     this.onTouched = fn;
   }
 
-  // Add this method to ensure the form control gets notified of validation state changes
-  private updateValidationState(): void {
-    // Force the form to revalidate this control
-    if (this.onChange) {
-      this.onChange(this.value());
-    }
-  }
-
   setDisabledState?(isDisabled: boolean): void {
     this.disabled.set(isDisabled);
     isDisabled ? this.countryCtrl.disable() : this.countryCtrl.enable();
