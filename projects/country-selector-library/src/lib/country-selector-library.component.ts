@@ -121,11 +121,6 @@ export class CountrySelectorLibraryComponent implements OnInit, AfterViewInit, C
       this.onChange(value);
       this.onTouched();
     }
-<<<<<<< HEAD
-=======
-    // Always update validation state when value changes
-    this.updateValidationState();
->>>>>>> 1e0b11ba1b92dffe5c27befb3336d129cc027e88
   }
 
 
@@ -181,15 +176,8 @@ export class CountrySelectorLibraryComponent implements OnInit, AfterViewInit, C
   }
 
   ngAfterViewInit(): void {
-<<<<<<< HEAD
     // In zoneless mode, signals will automatically trigger change detection
     // No manual validation state update needed
-=======
-    // Ensure proper validation state after view initialization
-    setTimeout(() => {
-      this.updateValidationState();
-    }, 0);
->>>>>>> 1e0b11ba1b92dffe5c27befb3336d129cc027e88
   }
 
   registerOnChange(fn: (value: ICountry | null) => void): void {

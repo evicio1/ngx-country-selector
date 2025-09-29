@@ -46,20 +46,12 @@ export class AppComponent {
 
   onCountryChange(country: ICountry | null) {
     this.selectedCountry.set(country);
-<<<<<<< HEAD
     // In zoneless mode, we just need to update the form control value
     // Angular will automatically detect the change through signals
-=======
-    // Update the form control value to ensure proper validation
->>>>>>> 1e0b11ba1b92dffe5c27befb3336d129cc027e88
     const countryControl = this.loginForm.get('country');
     if (countryControl) {
       countryControl.setValue(country);
       countryControl.markAsTouched();
-<<<<<<< HEAD
-=======
-      countryControl.updateValueAndValidity(); // Force validation update
->>>>>>> 1e0b11ba1b92dffe5c27befb3336d129cc027e88
     }
   }
 
