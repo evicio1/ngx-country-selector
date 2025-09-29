@@ -20,7 +20,17 @@
     <input formControlName="username" matInput placeholder='username'>
     @if (validateControl('username') && hasError('username', 'required')) {
         <mat-error>
-            'User name is required'
+            username is required
+        </mat-error>
+    }
+</mat-form-field>
+
+<mat-form-field appearance="outline">
+    <mat-label>Password</mat-label>
+    <input formControlName="password" matInput type="password" placeholder='Enter your password'>
+    @if (validateControl('password') && hasError('password', 'required')) {
+        <mat-error>
+            Password is required
         </mat-error>
     }
 </mat-form-field>

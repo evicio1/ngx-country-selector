@@ -1,12 +1,45 @@
 # ngx-country-selector
 
+A modern, feature-rich Angular country selector component built with **Angular Material**. This library provides a beautiful, accessible, and highly customizable dropdown for selecting countries with support for flags, country codes, local names, and more.
+
+## ✨ Features
+
+- 🎨 **Built with Angular Material** - Leverages Material Design components for consistent UI/UX
+- 🏳️ **Country Flags** - Visual flag representations for all countries
+- 🌍 **Comprehensive Country Data** - Includes country codes, local names, capitals, currencies, and languages
+- 🔍 **Search & Filter** - Built-in search functionality with autocomplete
+- ⚡ **Performance Optimized** - Supports zoneless change detection for better performance
+- 🎯 **Highly Customizable** - Extensive configuration options for appearance and behavior
+- ♿ **Accessible** - Full accessibility support with ARIA attributes
+- 📱 **Responsive** - Works seamlessly across all device sizes
+- 🔧 **Angular 20 Ready** - Compatible with the latest Angular version
+
+## 🛠️ Built With
+
+- **Angular 20+** - Modern Angular framework
+- **Angular Material 20+** - Material Design components (mat-form-field, mat-autocomplete, mat-input, mat-icon, mat-progress-bar, mat-divider)
+- **TypeScript** - Type-safe development experience
+- **SCSS** - Styled with modern CSS preprocessor
+
+*Note: Angular CDK is included as a peer dependency of Angular Material but is not directly used by this library.*
+
 This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 20.3.2.
 
-## Getting started
+## 📋 Prerequisites
 
-1. once the angular application setup is ready, install the Ngx Country selector library using the following command
+This library requires **Angular Material** to be installed in your project, as it uses Material Design components like `mat-form-field`, `mat-autocomplete`, and `mat-input`.
 
+If you don't have Angular Material installed:
+
+```bash
+ng add @angular/material
 ```
+
+## 🚀 Getting started
+
+1. Once your Angular application setup is ready, install the ngx-country-selector library using the following command:
+
+```bash
 npm i ngx-country-selector
 ```
 

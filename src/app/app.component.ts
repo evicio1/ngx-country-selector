@@ -1,4 +1,4 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, input, signal, OnInit } from '@angular/core';
 import { CountrySelectorLibraryComponent } from "../../projects/country-selector-library/src/lib/country-selector-library.component";
 import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
@@ -46,14 +46,20 @@ export class AppComponent {
 
   onCountryChange(country: ICountry | null) {
     this.selectedCountry.set(country);
+    // In zoneless mode, we just need to update the form control value
+    // Angular will automatically detect the change through signals
+    const countryControl = this.loginForm.get('country');
+    if (countryControl) {
+      countryControl.setValue(country);
+      countryControl.markAsTouched();
+    }
   }
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({
       username: new FormControl('', [Validators.required]),
       password: new FormControl('', Validators.required),
-      country: new FormControl({value: {code:'in'} as ICountry | null, disabled: false},
-         Validators.required), // need to send both validator and required input value to make it work
+      country: new FormControl(null, Validators.required), // Initialize with null and let the component handle the default
     });
 
     //loadCountries after 10 seconds of page shows
@@ -70,10 +76,14 @@ export class AppComponent {
   }
 
   onSubmit = () => {
+    // Check each control
+    
     if(this.loginForm.invalid) {
       alert('Please fill all the required fields');
+      return;
     }
     const login = this.loginForm.value;
+    alert('Form submitted successfully: ' + JSON.stringify(login));
   }
 
   validateControl = (controlName: string) => {
