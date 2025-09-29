@@ -54,7 +54,7 @@ import { MatDividerModule } from '@angular/material/divider';
     ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CountrySelectorLibraryComponent implements OnInit, AfterViewInit, ControlValueAccessor, Validator  {
+export class CountrySelectorLibraryComponent implements OnInit, ControlValueAccessor, Validator  {
   readonly label = input('');
   readonly appearance = input<"fill" | "outline">("outline");
   readonly extendWidth = input(false);
