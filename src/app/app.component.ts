@@ -76,12 +76,6 @@ export class AppComponent {
   }
 
   onSubmit = () => {
-    
-    
-    
-    
-    
-    
     // Check each control
     
     if(this.loginForm.invalid) {
