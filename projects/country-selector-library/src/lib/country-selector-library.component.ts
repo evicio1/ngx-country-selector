@@ -117,7 +117,7 @@ export class CountrySelectorLibraryComponent implements OnInit, AfterViewInit, C
 
   protected setValue(value: ICountry | null, emitEvent: boolean) {
     this.setSelectedCountry(value);
-    if (emitEvent) {
+    if (emitEvent && this.onChange) {
       this.onChange(value);
       this.onTouched();
     }
