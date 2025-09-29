@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   OnInit,
+  AfterViewInit,
   computed,
   forwardRef,
   input,
@@ -54,7 +55,7 @@ import { MatDividerModule } from '@angular/material/divider';
     ],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CountrySelectorLibraryComponent implements OnInit, ControlValueAccessor, Validator  {
+export class CountrySelectorLibraryComponent implements OnInit, AfterViewInit, ControlValueAccessor, Validator  {
   readonly label = input('');
   readonly appearance = input<"fill" | "outline">("outline");
   readonly extendWidth = input(false);
@@ -91,10 +92,15 @@ export class CountrySelectorLibraryComponent implements OnInit, ControlValueAcce
     this.countryCtrl = new FormControl(null);
   }
   validate(control: AbstractControl): ValidationErrors | null {
-    return this.required() ? (control.value ? null : { required: true }) : null;
+    if (!this.required()) {
+      return null;
+    }
+    
+    const hasValue = this.value() !== null && this.value() !== undefined;
+    return hasValue ? null : { required: true };
   }
 
-  writeValue(value: ICountry): void {
+  writeValue(value: ICountry | null): void {
     if (value) {
       const selectedCountryCode = value.code;
       if (selectedCountryCode) {
@@ -105,18 +111,22 @@ export class CountrySelectorLibraryComponent implements OnInit, ControlValueAcce
           this.setValue(country, false);
         }
       }
+    } else {
+      this.setValue(null, false);
     }
 
     this._cdr.markForCheck();
   }
 
   protected setValue(value: ICountry | null, emitEvent: boolean) {
-   this.setSelectedCountry(value);
-    if (emitEvent && this.onChange) {
-        this.onChange(value);
-        this.onTouched();
+    this.setSelectedCountry(value);
+    if (emitEvent) {
+      this.onChange(value);
+      this.onTouched();
     }
-}
+    // Always update validation state when value changes
+    this.updateValidationState();
+  }
 
 
   readonly standardCountries = computed(() =>
@@ -161,7 +171,6 @@ export class CountrySelectorLibraryComponent implements OnInit, ControlValueAcce
           if (!(typeof value === 'object' && (value as ICountry)?.name !== this.searchText())) {
             this.searchText.set(value);
           }
-
         }
       })
     ).subscribe();
@@ -171,12 +180,27 @@ export class CountrySelectorLibraryComponent implements OnInit, ControlValueAcce
     }
   }
 
+  ngAfterViewInit(): void {
+    // Ensure proper validation state after view initialization
+    setTimeout(() => {
+      this.updateValidationState();
+    }, 0);
+  }
+
   registerOnChange(fn: (value: ICountry | null) => void): void {
     this.onChange = fn;
   }
 
   registerOnTouched(fn: () => void): void {
     this.onTouched = fn;
+  }
+
+  // Add this method to ensure the form control gets notified of validation state changes
+  private updateValidationState(): void {
+    // Force the form to revalidate this control
+    if (this.onChange) {
+      this.onChange(this.value());
+    }
   }
 
   setDisabledState?(isDisabled: boolean): void {

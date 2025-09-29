@@ -46,14 +46,20 @@ export class AppComponent {
 
   onCountryChange(country: ICountry | null) {
     this.selectedCountry.set(country);
+    // Update the form control value to ensure proper validation
+    const countryControl = this.loginForm.get('country');
+    if (countryControl) {
+      countryControl.setValue(country);
+      countryControl.markAsTouched();
+      countryControl.updateValueAndValidity(); // Force validation update
+    }
   }
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({
       username: new FormControl('', [Validators.required]),
       password: new FormControl('', Validators.required),
-      country: new FormControl({value: {code:'in'} as ICountry | null, disabled: false},
-         Validators.required), // need to send both validator and required input value to make it work
+      country: new FormControl(null, Validators.required), // Initialize with null and let the component handle the default
     });
 
     //loadCountries after 10 seconds of page shows
@@ -70,10 +76,24 @@ export class AppComponent {
   }
 
   onSubmit = () => {
+    console.log('=== Form Submission Debug ===');
+    console.log('Form status:', this.loginForm.status);
+    console.log('Form value:', this.loginForm.value);
+    console.log('Form errors:', this.loginForm.errors);
+    console.log('Selected country signal:', this.selectedCountry());
+    
+    // Check each control
+    Object.keys(this.loginForm.controls).forEach(key => {
+      const control = this.loginForm.get(key);
+      console.log(`${key} control - status: ${control?.status}, value:`, control?.value, 'errors:', control?.errors);
+    });
+    
     if(this.loginForm.invalid) {
       alert('Please fill all the required fields');
+      return;
     }
     const login = this.loginForm.value;
+    alert('Form submitted successfully: ' + JSON.stringify(login));
   }
 
   validateControl = (controlName: string) => {
