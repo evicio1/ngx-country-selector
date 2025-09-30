@@ -29,7 +29,7 @@
     <mat-divider></mat-divider>
     }
     @for (country of combinedCountryList().nonPreferred;
-    track country) {
+    track country.code) {
     <mat-option [value]="country">
       @if (!countryListConfig().hideFlag) {
       <div class="ipv_flag-box">

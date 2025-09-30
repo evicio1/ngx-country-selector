@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [20.0.2] - 2025-09-30
+
+### 🔧 Performance Improvement
+
+#### Fixed
+
+- **Template Optimization**: Improved `@for` loop tracking in country list template
+  - Changed `track country` to `track country.code` for better change detection performance
+  - More efficient rendering when country list updates
+  - Prevents unnecessary DOM re-renders for unchanged countries
+
+#### Technical Details
+
+- Enhanced Angular's change detection strategy for country dropdown options
+- Better performance when filtering or updating country lists
+- Follows Angular's best practices for `@for` directive tracking functions
+
+---
+
 ## [20.0.1] - 2025-09-29
 
 ### 🚀 Performance & Stability Update
