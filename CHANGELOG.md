@@ -2,6 +2,46 @@
 
 All notable changes to this project will be documented in this file.
 
+## [20.0.3] - 2025-09-30
+
+### 📈 Improved Package Discoverability
+
+#### Added
+
+- **NPM Keywords**: Added comprehensive keywords for better search discoverability
+  - Core terms: `angular`, `country`, `selector`, `dropdown`, `picker`, `flags`
+  - Technical terms: `angular-material`, `autocomplete`, `typescript`, `reactive-forms`
+  - SEO terms: `country-picker`, `country-flags`, `mat-autocomplete`, `iso-codes`
+  - Framework terms: `angular-20`, `ngx`, `component`, `ui-component`
+
+- **Enhanced Package Metadata**:
+  - Added detailed description for npm listing
+  - Added author information
+  - Added license field (MIT)
+  - Added homepage and bug report URLs
+  - Improved package.json structure for better npm presentation
+
+#### Benefits
+
+- 🔍 **Better Search Results**: Library now appears in relevant npm searches
+- 📊 **Increased Visibility**: More discoverable through various search terms
+- 📋 **Professional Listing**: Complete package information on npm
+- 🎯 **Targeted Keywords**: Covers Angular, Material Design, country selection use cases
+
+#### Search Terms Now Supported
+
+Users can now find the library by searching for:
+- `angular country selector`
+- `angular country picker`
+- `angular country dropdown`
+- `angular material country`
+- `ngx country flags`
+- `angular autocomplete country`
+- `country selector component`
+- And many more combinations
+
+---
+
 ## [20.0.2] - 2025-09-30
 
 ### 🔧 Performance Improvement

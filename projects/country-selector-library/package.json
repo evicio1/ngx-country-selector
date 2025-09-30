@@ -1,6 +1,46 @@
 {
   "name": "ngx-country-selector",
-  "version": "20.0.2",
+  "version": "20.0.3",
+  "description": "A modern Angular country selector component with flags, search, and Material Design",
+  "keywords": [
+    "angular",
+    "angular-20",
+    "country",
+    "selector",
+    "dropdown",
+    "picker",
+    "flags",
+    "country-flags",
+    "country-picker",
+    "country-selector",
+    "country-dropdown",
+    "angular-material",
+    "material-design",
+    "autocomplete",
+    "search",
+    "typescript",
+    "component",
+    "angular-component",
+    "ngx",
+    "form-control",
+    "reactive-forms",
+    "mat-autocomplete",
+    "country-codes",
+    "iso-codes",
+    "localization",
+    "i18n",
+    "ui-component",
+    "frontend"
+  ],
+  "author": {
+    "name": "evicio1",
+    "url": "https://github.com/evicio1"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/evicio1/ngx-country-selector#readme",
+  "bugs": {
+    "url": "https://github.com/evicio1/ngx-country-selector/issues"
+  },
   "peerDependencies": {
     "@angular/common": "^20.0.0",
     "@angular/core": "^20.0.0"
