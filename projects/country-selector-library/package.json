@@ -1,6 +1,6 @@
 {
   "name": "ngx-country-selector",
-  "version": "20.0.3",
+  "version": "20.1.0",
   "description": "A modern Angular country selector component with flags, search, and Material Design",
   "keywords": [
     "angular",
@@ -42,8 +42,8 @@
     "url": "https://github.com/evicio1/ngx-country-selector/issues"
   },
   "peerDependencies": {
-    "@angular/common": "^20.0.0",
-    "@angular/core": "^20.0.0"
+    "@angular/common": "^20.3.3",
+    "@angular/core": "^20.3.3"
   },
   "dependencies": {
     "tslib": "^2.3.0"

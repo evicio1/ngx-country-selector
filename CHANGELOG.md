@@ -2,6 +2,53 @@
 
 All notable changes to this project will be documented in this file.
 
+## [20.1.0] - 2025-10-07
+
+### 🚀 Angular 20.3.3 Update - Minor Version Release
+
+#### Updated
+
+- **Angular Framework**: Updated to Angular 20.3.3 (latest stable release)
+  - `@angular/core`: `^20.3.2` → `^20.3.3`
+  - `@angular/common`: `^20.3.2` → `^20.3.3`
+  - `@angular/forms`: `^20.3.2` → `^20.3.3`
+  - `@angular/platform-browser`: `^20.3.2` → `^20.3.3`
+  - `@angular/platform-browser-dynamic`: `^20.3.2` → `^20.3.3`
+  - `@angular/router`: `^20.3.2` → `^20.3.3`
+  - `@angular/animations`: `^20.3.2` → `^20.3.3`
+  - `@angular/compiler`: `^20.3.2` → `^20.3.3`
+
+- **Angular Development Tools**: Updated to 20.3.3
+  - `@angular/cli`: `^20.3.2` → `^20.3.3`
+  - `@angular/compiler-cli`: `^20.3.2` → `^20.3.3`
+  - `@angular-devkit/build-angular`: `^20.3.2` → `^20.3.3`
+  - `ng-packagr`: `^20.3.0` → `^20.3.3`
+
+- **Peer Dependencies**: Updated to reflect latest Angular version
+  - Library now requires Angular 20.3.3+ for optimal compatibility
+
+#### Benefits
+
+- 🔧 **Latest Bug Fixes**: Includes all Angular 20.3.3 bug fixes and improvements
+- 🛡️ **Security Updates**: Latest security patches from Angular team
+- ⚡ **Performance**: Enhanced performance optimizations from Angular 20.3.3
+- 🔄 **Compatibility**: Better compatibility with other Angular 20.3.3+ packages
+- 📈 **Stability**: Improved stability and reliability
+
+#### Migration Notes
+
+- **Recommended**: Update your Angular application to 20.3.3 for best compatibility
+- **Backward Compatible**: Still works with Angular 20.x applications
+- **Peer Dependencies**: Library now specifies ^20.3.3 for optimal experience
+
+#### Version Strategy
+
+- **Minor Version Bump**: `20.0.x` → `20.1.0` (following semantic versioning)
+- **Angular Alignment**: Version reflects significant Angular framework update
+- **Future Ready**: Prepared for upcoming Angular releases
+
+---
+
 ## [20.0.3] - 2025-09-30
 
 ### 📈 Improved Package Discoverability
