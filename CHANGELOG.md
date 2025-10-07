@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 ## [20.1.0] - 2025-10-07
 
-### 🚀 Angular 20.3.3 Update - Minor Version Release
+### 🚀 Angular 20.3.3 Update + Enhanced NPM Discoverability - Minor Version Release
 
 #### Updated
 
@@ -22,36 +22,10 @@ All notable changes to this project will be documented in this file.
   - `@angular/cli`: `^20.3.2` → `^20.3.3`
   - `@angular/compiler-cli`: `^20.3.2` → `^20.3.3`
   - `@angular-devkit/build-angular`: `^20.3.2` → `^20.3.3`
-  - `ng-packagr`: `^20.3.0` → `^20.3.3`
+  - `ng-packagr`: `^20.3.0` (latest available)
 
 - **Peer Dependencies**: Updated to reflect latest Angular version
   - Library now requires Angular 20.3.3+ for optimal compatibility
-
-#### Benefits
-
-- 🔧 **Latest Bug Fixes**: Includes all Angular 20.3.3 bug fixes and improvements
-- 🛡️ **Security Updates**: Latest security patches from Angular team
-- ⚡ **Performance**: Enhanced performance optimizations from Angular 20.3.3
-- 🔄 **Compatibility**: Better compatibility with other Angular 20.3.3+ packages
-- 📈 **Stability**: Improved stability and reliability
-
-#### Migration Notes
-
-- **Recommended**: Update your Angular application to 20.3.3 for best compatibility
-- **Backward Compatible**: Still works with Angular 20.x applications
-- **Peer Dependencies**: Library now specifies ^20.3.3 for optimal experience
-
-#### Version Strategy
-
-- **Minor Version Bump**: `20.0.x` → `20.1.0` (following semantic versioning)
-- **Angular Alignment**: Version reflects significant Angular framework update
-- **Future Ready**: Prepared for upcoming Angular releases
-
----
-
-## [20.0.3] - 2025-09-30
-
-### 📈 Improved Package Discoverability
 
 #### Added
 
@@ -70,7 +44,12 @@ All notable changes to this project will be documented in this file.
 
 #### Benefits
 
-- 🔍 **Better Search Results**: Library now appears in relevant npm searches
+- 🔧 **Latest Bug Fixes**: Includes all Angular 20.3.3 bug fixes and improvements
+- 🛡️ **Security Updates**: Latest security patches from Angular team
+- ⚡ **Performance**: Enhanced performance optimizations from Angular 20.3.3
+- 🔄 **Compatibility**: Better compatibility with other Angular 20.3.3+ packages
+- � **Stability**: Improved stability and reliability
+- �🔍 **Better Search Results**: Library now appears in relevant npm searches
 - 📊 **Increased Visibility**: More discoverable through various search terms
 - 📋 **Professional Listing**: Complete package information on npm
 - 🎯 **Targeted Keywords**: Covers Angular, Material Design, country selection use cases
@@ -86,6 +65,18 @@ Users can now find the library by searching for:
 - `angular autocomplete country`
 - `country selector component`
 - And many more combinations
+
+#### Migration Notes
+
+- **Recommended**: Update your Angular application to 20.3.3 for best compatibility
+- **Backward Compatible**: Still works with Angular 20.x applications
+- **Peer Dependencies**: Library now specifies ^20.3.3 for optimal experience
+
+#### Version Strategy
+
+- **Minor Version Bump**: `20.0.x` → `20.1.0` (following semantic versioning)
+- **Angular Alignment**: Version reflects significant Angular framework update
+- **Future Ready**: Prepared for upcoming Angular releases
 
 ---
 
