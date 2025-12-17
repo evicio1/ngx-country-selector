@@ -1,97 +1,102 @@
-import { Component, input, signal, OnInit } from '@angular/core';
-import { CountrySelectorLibraryComponent } from "../../projects/country-selector-library/src/lib/country-selector-library.component";
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import {MatAutocompleteModule} from '@angular/material/autocomplete';
-import {MatInputModule} from '@angular/material/input';
-import {MatFormFieldModule} from '@angular/material/form-field';
+import { Component, input, signal } from '@angular/core';
+import { CountrySelectorLibraryComponent } from '../../projects/country-selector-library/src/lib/country-selector-library.component';
+
+import { form, Field, required } from '@angular/forms/signals';
+
+import { FormsModule } from '@angular/forms';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+
 import { IConfig } from 'country-selector-library';
 import { ICountry } from '../../projects/country-selector-library/src/public-api';
 
+type LoginModel = {
+  username: string;
+  password: string;
+  country: ICountry | null;
+};
 
 @Component({
-    selector: 'app-root',
-    imports: [CountrySelectorLibraryComponent,
-        FormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatAutocompleteModule,
-        ReactiveFormsModule,
-        MatSlideToggleModule,
-    ],
-    templateUrl: './app.component.html',
-    styleUrl: './app.component.scss'
-})
+  selector: 'app-root',
+  standalone: true,
+  imports: [
+    CountrySelectorLibraryComponent,
 
+    // Signal forms directive
+    Field,
+
+    // Material + forms
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatSlideToggleModule,
+  ],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
+})
 export class AppComponent {
   title = 'country-selector';
-  loginForm!: FormGroup;
-  shouldCountryLocked  = input<boolean>(false);
 
-  config : IConfig = {
+  shouldCountryLocked = input<boolean>(false);
+
+  config: IConfig = {
     hideName: false,
-    showLocalName: true
-  };
-  selectedConfig : IConfig = {
-    hideName: false,
-    showLocalName: false
+    showLocalName: true,
   };
 
-  //Nordic countries, Germany, Austria, UK, Austria, Switzerland
+  selectedConfig: IConfig = {
+    hideName: false,
+    showLocalName: false,
+  };
+
   allowedCountryCode = signal<string[]>([]);
-  selectedCountry = signal<ICountry | null> (null);
+  selectedCountry = signal<ICountry | null>(null);
   loading = signal<boolean>(true);
   readonly = signal<boolean>(false);
 
+  // ✅ model stored as a signal
+  vm = signal<LoginModel>({
+    username: '',
+    password: '',
+    country: null,
+  });
 
+  // ✅ Signal Form schema
+  loginForm = form(this.vm, (p) => {
+    required(p.username, { message: 'username is required' });
+    required(p.password, { message: 'Password is required' });
+    required(p.country, { message: 'Country is required' });
+  });
+
+  // keep this if you still want your extra event handler
   onCountryChange(country: ICountry | null) {
     this.selectedCountry.set(country);
-    // In zoneless mode, we just need to update the form control value
-    // Angular will automatically detect the change through signals
-    const countryControl = this.loginForm.get('country');
-    if (countryControl) {
-      countryControl.setValue(country);
-      countryControl.markAsTouched();
-    }
+    // no manual setValue needed — [field] handles it
   }
 
   ngOnInit(): void {
-    this.loginForm = new FormGroup({
-      username: new FormControl('', [Validators.required]),
-      password: new FormControl('', Validators.required),
-      country: new FormControl(null, Validators.required), // Initialize with null and let the component handle the default
-    });
-
-    //loadCountries after 10 seconds of page shows
-    setTimeout(() => {
-      this.loadCountries();
-    }, 10000);
-
+    setTimeout(() => this.loadCountries(), 10000);
   }
 
-  // this should call after 2 seconds of page load
   loadCountries = () => {
     this.allowedCountryCode.set(['de', 'at', 'gb', 'dk', 'fi', 'is', 'no', 'se', 'ch']);
     this.loading.set(false);
-  }
+  };
 
   onSubmit = () => {
-    // Check each control
+    // Signal Forms: fields using [field] directive manage their own touched state
+    // Just check if form is valid by checking the values
+    const data = this.vm();
     
-    if(this.loginForm.invalid) {
+    if (!data.username || !data.password || !data.country) {
       alert('Please fill all the required fields');
       return;
     }
-    const login = this.loginForm.value;
-    alert('Form submitted successfully: ' + JSON.stringify(login));
-  }
 
-  validateControl = (controlName: string) => {
-    return this.loginForm.get(controlName)!.invalid && this.loginForm.get(controlName)!.touched
-  }
-
-  hasError = (controlName: string, errorName: string) => {
-    return this.loginForm.get(controlName)!.hasError(errorName)
-  }
-
+    // Form is valid, submit
+    alert('Form submitted successfully: ' + JSON.stringify(data));
+  };
 }

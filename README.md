@@ -1,9 +1,10 @@
 # ngx-country-selector
 
-A modern, feature-rich Angular country selector component built with **Angular Material**. This library provides a beautiful, accessible, and highly customizable dropdown for selecting countries with support for flags, country codes, local names, and more.
+A modern, feature-rich Angular country selector component built with **Angular Material** and **Signal Forms**. This library provides a beautiful, accessible, and highly customizable dropdown for selecting countries with support for flags, country codes, local names, and more.
 
 ## ✨ Features
 
+- ✨ **Signal Forms Support** - Native support for Angular's new Signal Forms API (`FormValueControl`)
 - 🎨 **Built with Angular Material** - Leverages Material Design components for consistent UI/UX
 - 🏳️ **Country Flags** - Visual flag representations for all countries
 - 🌍 **Comprehensive Country Data** - Includes country codes, local names, capitals, currencies, and languages
@@ -12,18 +13,19 @@ A modern, feature-rich Angular country selector component built with **Angular M
 - 🎯 **Highly Customizable** - Extensive configuration options for appearance and behavior
 - ♿ **Accessible** - Full accessibility support with ARIA attributes
 - 📱 **Responsive** - Works seamlessly across all device sizes
-- 🔧 **Angular 20 Ready** - Compatible with the latest Angular version
+- 🔧 **Angular 21 Ready** - Compatible with the latest Angular version
 
 ## 🛠️ Built With
 
-- **Angular 20+** - Modern Angular framework
-- **Angular Material 20+** - Material Design components (mat-form-field, mat-autocomplete, mat-input, mat-icon, mat-progress-bar, mat-divider)
-- **TypeScript** - Type-safe development experience
+- **Angular 21+** - Modern Angular framework with Signal Forms
+- **Angular Material 21+** - Material Design components (mat-form-field, mat-autocomplete, mat-input, mat-icon, mat-progress-bar, mat-divider)
+- **TypeScript 5.9+** - Type-safe development experience
 - **SCSS** - Styled with modern CSS preprocessor
+- **Signal Forms API** - Implements `FormValueControl` interface for modern form integration
 
 *Note: Angular CDK is included as a peer dependency of Angular Material but is not directly used by this library.*
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 20.3.2.
+This library was generated with [Angular CLI](https://github.com/angular/angular-cli) and updated to Angular 21.
 
 ## 📋 Prerequisites
 
@@ -156,19 +158,72 @@ npm i ngx-country-selector
 
 </tbody></table>
 
-### Reactive forms
+### Signal Forms (Angular 21+)
 
-```
- loginForm = new FormGroup({
-      username: new FormControl('', [Validators.required]),
-      password: new FormControl('', Validators.required),
-      country: new FormControl({value: {code:'in'} as ICountry | null, disabled: false},
-         Validators.required), // need to send both validator and required input value to make it work
-    });
+**Recommended for Angular 21+ applications:**
+
+```typescript
+import { form, Field, required } from '@angular/forms/signals';
+import { signal } from '@angular/core';
+
+// Define your model
+type LoginModel = {
+  username: string;
+  password: string;
+  country: ICountry | null;
+};
+
+// Create signal-based form
+vm = signal<LoginModel>({
+  username: '',
+  password: '',
+  country: null
+});
+
+loginForm = form(this.vm, (p) => {
+  required(p.username, { message: 'Username is required' });
+  required(p.password, { message: 'Password is required' });
+  required(p.country, { message: 'Country is required' });
+});
 ```
 
+```html
+<!-- Import Field directive in your component -->
+<lib-country-selector
+  [field]="loginForm.country"
+  [allowedCountryCodes]="allowedCountryCode()"
+  [countryListConfig]="config"
+  [selectedCountryConfig]="selectedConfig"
+  [loading]="loading()"
+  label="Country"
+  [clearable]="true"
+  [customNaming]="{ gb: 'United Kingdom' }"
+  (onCountryChange)="onCountryChange($event)"
+  error="Country is required"
+></lib-country-selector>
 ```
-  <lib-country-selector
+
+**Key Benefits:**
+- ✨ Reactive updates with signals
+- 🚀 Better performance with fine-grained reactivity
+- 🎯 Type-safe form models
+- 🔧 Automatic validation and error handling
+
+### Reactive Forms (Traditional)
+
+**For applications using traditional reactive forms:**
+
+```typescript
+loginForm = new FormGroup({
+  username: new FormControl('', [Validators.required]),
+  password: new FormControl('', Validators.required),
+  country: new FormControl({value: {code:'in'} as ICountry | null, disabled: false},
+    Validators.required), // need to send both validator and required input value to make it work
+});
+```
+
+```html
+<lib-country-selector
   [allowedCountryCodes]="allowedCountryCode()"
   [countryListConfig]="config"
   [selectedCountryConfig]="selectedConfig"
@@ -181,8 +236,10 @@ npm i ngx-country-selector
   (onCountryChange)="onCountryChange($event)"
   error="Country is required"
   [required]="true"
-  ></lib-country-selector>
+></lib-country-selector>
 ```
+
+**Note:** The component supports both Signal Forms and traditional Reactive Forms, allowing for gradual migration.
 
 ### IConfig properties and usage
 

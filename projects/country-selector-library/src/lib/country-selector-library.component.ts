@@ -1,146 +1,116 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
-  AfterViewInit,
   computed,
-  forwardRef,
+  effect,
   input,
   model,
   output,
   signal,
 } from '@angular/core';
-import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
-import { IConfig, ICountry } from './models';
+import type { IConfig, ICountry } from './models';
 import {
   getAllowedCountries,
   getCountriesBasedOnSearch,
   getFilteredCountries,
   getPreferredCountries,
 } from './country.helper';
-import { FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { map, startWith } from 'rxjs/operators';
-import { MatAutocomplete, MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
+
+import {
+  FormValueControl,
+  type DisabledReason,
+  type ValidationError,
+  type WithOptionalField,
+} from '@angular/forms/signals';
+
+import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatProgressBarModule } from "@angular/material/progress-bar";
-import { MatIconModule } from "@angular/material/icon";
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'lib-country-selector',
-    imports: [FormsModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatAutocompleteModule,
-        ReactiveFormsModule,
-        MatProgressBarModule,
-        MatIconModule,
-        MatDividerModule
-    ],
-    templateUrl: './country-selector-library.component.html',
-    styleUrl: './country-selector-library.component.scss',
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => CountrySelectorLibraryComponent),
-            multi: true
-        },
-        {
-            provide: NG_VALIDATORS,
-            multi: true,
-            useExisting: forwardRef(() => CountrySelectorLibraryComponent),
-        }
-    ],
-    changeDetection: ChangeDetectionStrategy.OnPush
+  selector: 'lib-country-selector',
+  standalone: true,
+  imports: [
+    FormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatAutocompleteModule,
+    MatProgressBarModule,
+    MatIconModule,
+    MatDividerModule,
+  ],
+  templateUrl: './country-selector-library.component.html',
+  styleUrl: './country-selector-library.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CountrySelectorLibraryComponent implements OnInit, ControlValueAccessor, Validator  {
+export class CountrySelectorLibraryComponent
+  implements FormValueControl<ICountry | null>
+{
+  // ---- Your existing config inputs (kept) ----
   readonly label = input('');
-  readonly appearance = input<"fill" | "outline">("outline");
+  readonly appearance = input<'fill' | 'outline'>('outline');
   readonly extendWidth = input(false);
   readonly class = input<string>('');
   readonly placeHolder = input('Select country');
-  readonly readonly = input(false);
   readonly tabIndex = input<number>(0);
-  readonly name = input<string>("country");
-  readonly required = input<boolean>(false);
+  readonly name = input<string>('country');
   readonly hint = input<string | undefined>(undefined);
   readonly error = input<string>('');
   readonly loading = input<boolean>(false);
   readonly panelWidth = input<string>('');
   readonly clearable = input<boolean>(false);
+
   readonly preferredCountryCodes = input<string[]>([]);
   readonly allowedCountryCodes = input<string[]>([]);
   readonly blockedCountryCodes = input<string[]>([]);
   readonly selectedCountryConfig = input<IConfig>({});
   readonly countryListConfig = input<IConfig>({});
-  readonly customNaming = input<{ [key: string]: string }>({})
+  readonly customNaming = input<{ [key: string]: string }>({});
+
+  // Keep this as *UI* readonly flag (we'll merge it with form readonly)
+  readonly uiReadonly = input(false);
 
   readonly onCountryChange = output<ICountry | null>();
 
-  private onChange: (value: ICountry | null) => void = () => { };
-  onTouched: () => void = () => { };
+  // ---- Signal Forms control contract (required) ----
+  // This is what [field] binds to.
+  value = model<ICountry | null>(null);
 
-  readonly disabled = signal(false);
-  readonly value = signal<ICountry | null>(null);
-  readonly searchText = model('');
+  // ---- Optional state/constraint signals that [field] can supply ---- :contentReference[oaicite:1]{index=1}
+  touched = model(false);
 
-  countryCtrl = new FormControl();
+  disabled = input(false);
+  disabledReasons = input<readonly WithOptionalField<DisabledReason>[]>([]);
+  readonly = input(false);
+  hidden = input(false);
 
-  constructor() {
-    this.countryCtrl = new FormControl(null);
-  }
-  validate(control: AbstractControl): ValidationErrors | null {
-    if (!this.required()) {
-      return null;
-    }
-    
-    const hasValue = this.value() !== null && this.value() !== undefined;
-    return hasValue ? null : { required: true };
-  }
+  required = input(false); // comes from schema (required(...))
+  invalid = input(false);
+  errors = input<readonly WithOptionalField<ValidationError>[]>([]);
 
-  writeValue(value: ICountry | null): void {
-    if (value) {
-      const selectedCountryCode = value.code;
-      if (selectedCountryCode) {
-        const country = this.countriesExpectBlocked().find(
-          x => x.code === selectedCountryCode.toUpperCase()
-        );
-        if (country) {
-          this.setValue(country, false);
-        }
-      }
-    } else {
-      this.setValue(null, false);
-    }
-  }
+  // ---- Internal UI state ----
+  readonly searchText = model('');      // user typed text
+  readonly displayText = model('');     // what is shown in the input
 
-  protected setValue(value: ICountry | null, emitEvent: boolean) {
-    this.setSelectedCountry(value);
-    if (emitEvent && this.onChange) {
-      this.onChange(value);
-      this.onTouched();
-    }
-  }
-
-
-  readonly standardCountries = computed(() =>
-    getFilteredCountries(
-      this.countriesExpectBlocked(),
-      this.preferredCountryCodes()
-    )
-  );
-
-  readonly filteredCountries = computed(() =>
-    getCountriesBasedOnSearch(this.standardCountries(), this.searchText())
-  );
-
+  // ---- Lists ----
   readonly countryList = computed(() =>
     getAllowedCountries(this.allowedCountryCodes(), this.customNaming())
   );
 
   readonly countriesExpectBlocked = computed(() =>
     getFilteredCountries(this.countryList(), this.blockedCountryCodes())
+  );
+
+  readonly standardCountries = computed(() =>
+    getFilteredCountries(this.countriesExpectBlocked(), this.preferredCountryCodes())
+  );
+
+  readonly filteredCountries = computed(() =>
+    getCountriesBasedOnSearch(this.standardCountries(), this.searchText())
   );
 
   readonly preferredCountryList = computed(() => {
@@ -151,69 +121,60 @@ export class CountrySelectorLibraryComponent implements OnInit, ControlValueAcce
     return getCountriesBasedOnSearch(result, this.searchText());
   });
 
-  readonly combinedCountryList = computed(() => {
-    return {
-      preferred: this.preferredCountryList(),
-      nonPreferred: this.filteredCountries()
-    };
-  });
+  readonly combinedCountryList = computed(() => ({
+    preferred: this.preferredCountryList(),
+    nonPreferred: this.filteredCountries(),
+  }));
 
-  ngOnInit(): void {
-    this.countryCtrl.valueChanges.pipe(
-      startWith(''),
-      map(value => {
-        if (value !== null) {
-          if (!(typeof value === 'object' && (value as ICountry)?.name !== this.searchText())) {
-            this.searchText.set(value);
-          }
-        }
-      })
-    ).subscribe();
+  // A single "effective" readonly for the template
+  readonly effectiveReadonly = computed(() => this.uiReadonly() || this.readonly());
 
-    if(this.required()){
-      this.countryCtrl.setValidators(Validators.required);
-    }
+  constructor() {
+    // Keep the input text in sync when value changes externally (model updates / resets)
+    effect(() => {
+      const country = this.value();
+
+      if (!country) {
+        this.displayText.set('');
+        this.searchText.set('');
+        return;
+      }
+
+      const showLocal = !!this.selectedCountryConfig().showLocalName && !!country.localName;
+      const txt = showLocal ? `${country.name} (${country.localName})` : (country.name ?? '');
+      this.displayText.set(txt);
+      this.searchText.set(txt);
+    });
   }
 
-  registerOnChange(fn: (value: ICountry | null) => void): void {
-    this.onChange = fn;
+  onTextInput(raw: string) {
+    this.displayText.set(raw);
+    this.searchText.set(raw);
   }
 
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState?(isDisabled: boolean): void {
-    this.disabled.set(isDisabled);
-    isDisabled ? this.countryCtrl.disable() : this.countryCtrl.enable();
+  onBlur() {
+    this.touched.set(true);
   }
 
   onCountrySelected($event: MatAutocompleteSelectedEvent) {
-    const selectedCountry = $event.option.value as ICountry ?? null;
-    this.setValue(selectedCountry, true);
-  }
-
-  private setSelectedCountry(country: ICountry | null) {
-    this.value.set(country);
-    this.onCountryChange.emit(country);
-
-    if (country !== null) {
-      if (this.selectedCountryConfig().showLocalName && !!country.localName) {
-        this.countryCtrl.setValue(country.name! + ' (' + country.localName + ')');
-      } else {
-        this.countryCtrl.setValue(country.name!);
-      }
-    }
-    else{
-      this.countryCtrl.setValue(null);
-    }
+    const selected = ($event.option.value as ICountry) ?? null;
+    this.value.set(selected);
+    this.touched.set(true);
+    this.onCountryChange.emit(selected);
   }
 
   clear() {
-    this.searchText.set('');
     this.value.set(null);
-    this.setValue(null, true);
+    this.touched.set(true);
+    this.displayText.set('');
+    this.searchText.set('');
     this.onCountryChange.emit(null);
   }
-}
 
+  // (Optional) if your mat-autocomplete displayWith needs it:
+  displayWith = (country: ICountry | null) => {
+    if (!country) return '';
+    const showLocal = !!this.selectedCountryConfig().showLocalName && !!country.localName;
+    return showLocal ? `${country.name} (${country.localName})` : (country.name ?? '');
+  };
+}

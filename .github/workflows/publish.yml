@@ -173,18 +173,22 @@ jobs:
           ## 🚀 ${{ env.LIBRARY_NAME }} v$VERSION
 
           ### What's New in This Release
-          - Enhanced Angular Country Selector component
-          - Built with Angular $ANGULAR_VERSION (Angular $ANGULAR_MAJOR)
-          - Optimized for modern Angular applications
+          - **Angular $ANGULAR_MAJOR Support**: Fully compatible with Angular $ANGULAR_VERSION
+          - **Signal Forms Integration**: Native support for Angular's new Signal Forms API
+          - **FormValueControl Interface**: Modern signal-based form control implementation
+          - **Enhanced Performance**: Leverages Angular $ANGULAR_MAJOR's latest optimizations
+          - **Zoneless Ready**: Compatible with Angular's zoneless change detection
           - Published to npm: https://www.npmjs.com/package/${{ env.LIBRARY_NAME }}
 
           ### 🎯 Key Features
-          - 🎨 Built with Angular Material Design components
+          - ✨ **Signal Forms Support**: Implements \`FormValueControl\` interface for modern Angular forms
+          - 🎨 Built with Angular Material Design components (v$ANGULAR_MAJOR)
           - 🏳️ Visual country flags for all countries
           - 🔍 Built-in search and autocomplete functionality
-          - ⚡ Performance optimized with modern Angular features
+          - ⚡ Performance optimized with Angular $ANGULAR_MAJOR features and signals
           - ♿ Full accessibility support with ARIA attributes
           - 📱 Responsive design for all device sizes
+          - 🚀 Zoneless change detection compatible
 
           ### 📦 Installation
           \`\`\`bash
@@ -194,13 +198,34 @@ jobs:
           ### 🛠️ Requirements
           - Angular $ANGULAR_MAJOR+ (any $ANGULAR_MAJOR.x version)
           - Angular Material $ANGULAR_MAJOR+
-          - Node.js 18+ (recommended)
+          - Node.js 20+ (recommended)
+          - TypeScript 5.9+ (for Angular 21)
+
+          ### 💡 Usage with Signal Forms
+          \`\`\`typescript
+          import { form, Field, required } from '@angular/forms/signals';
+          import { CountrySelectorLibraryComponent } from 'ngx-country-selector';
+
+          // Create signal-based form
+          vm = signal({ country: null });
+          myForm = form(this.vm, (p) => {
+            required(p.country, { message: 'Country is required' });
+          });
+          \`\`\`
+
+          \`\`\`html
+          <lib-country-selector
+            [field]="myForm.country"
+            label="Select Country"
+          />
+          \`\`\`
 
           ### 📊 Package Information
           - **Package Size**: $PACKAGE_SIZE
           - **Angular Version**: $ANGULAR_VERSION
-          - **TypeScript**: Latest compatible version
+          - **TypeScript**: 5.9+ compatible
           - **Dependencies**: Minimal (tslib ^2.3.0)
+          - **Form Support**: Signal Forms (\`FormValueControl\`) + Reactive Forms
 
           ### 🔗 Links
           - 📦 [NPM Package](https://www.npmjs.com/package/${{ env.LIBRARY_NAME }})
