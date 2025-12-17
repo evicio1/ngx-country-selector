@@ -1,41 +1,41 @@
-
-<form [formGroup]="loginForm" autocomplete="off" novalidate (ngSubmit)="onSubmit()">
+<form autocomplete="off" novalidate (ngSubmit)="onSubmit()">
 
   <lib-country-selector
-  [allowedCountryCodes]="allowedCountryCode()"
-  [countryListConfig]="config"
-  [selectedCountryConfig]="selectedConfig"
-  [loading]="loading()"
-  [readonly]="readonly() || loading()"
-  label="Country"
-  [clearable]="!shouldCountryLocked()"
-  [customNaming]="{ gb: 'United Kingdom'}"
-  formControlName="country"
-  (onCountryChange)="onCountryChange($event)"
-  error="Country is required"
-  [required]="true"
+    [field]="loginForm.country"
+    [allowedCountryCodes]="allowedCountryCode()"
+    [countryListConfig]="config"
+    [selectedCountryConfig]="selectedConfig"
+    [loading]="loading()"
+    label="Country"
+    [clearable]="!shouldCountryLocked()"
+    [customNaming]="{ gb: 'United Kingdom' }"
+    (onCountryChange)="onCountryChange($event)"
+    error="Country is required"
   ></lib-country-selector>
+
   <mat-form-field appearance="outline">
     <mat-label>username</mat-label>
-    <input formControlName="username" matInput placeholder='username'>
-    @if (validateControl('username') && hasError('username', 'required')) {
-        <mat-error>
-            username is required
-        </mat-error>
-    }
-</mat-form-field>
+    <input matInput placeholder="username" [field]="loginForm.username" />
 
-<mat-form-field appearance="outline">
+    @if (loginForm.username().touched() && loginForm.username().invalid()) {
+      <mat-error>
+        {{ loginForm.username().errors()[0]?.message ?? 'username is required' }}
+      </mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
     <mat-label>Password</mat-label>
-    <input formControlName="password" matInput type="password" placeholder='Enter your password'>
-    @if (validateControl('password') && hasError('password', 'required')) {
-        <mat-error>
-            Password is required
-        </mat-error>
-    }
-</mat-form-field>
+    <input matInput type="password" placeholder="Enter your password" [field]="loginForm.password" />
 
-<button type="submit" mat-raised-button color="primary" class="w-100" >Login</button>
+    @if (loginForm.password().touched() && loginForm.password().invalid()) {
+      <mat-error>
+        {{ loginForm.password().errors()[0]?.message ?? 'Password is required' }}
+      </mat-error>
+    }
+  </mat-form-field>
+
+  <button type="submit" mat-raised-button color="primary" class="w-100">Login</button>
 </form>
 
-<span>Selected Country: {{selectedCountry()?.name}}</span>
+<span>Selected Country: {{ selectedCountry()?.name }}</span>

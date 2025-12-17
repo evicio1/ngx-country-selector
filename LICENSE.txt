@@ -1,7 +1,5 @@
 MIT License
 
-Copyright (c) 2023 Orien Infotech
-Copyright (c) 2020 anthonynahas
 Copyright (c) 2024 Tharaka Kumara
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

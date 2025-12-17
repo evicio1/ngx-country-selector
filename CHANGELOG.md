@@ -2,6 +2,76 @@
 
 All notable changes to this project will be documented in this file.
 
+## [21.0.0] - 2025-12-17
+
+### 🚀 Angular 21.0.5 Major Update - Breaking Version Release
+
+#### Updated
+
+- **Angular Framework**: Upgraded to Angular 21.0.5 (latest stable release)
+  - `@angular/core`: `^20.3.3` → `^21.0.5`
+  - `@angular/common`: `^20.3.3` → `^21.0.5`
+  - `@angular/forms`: `^20.3.3` → `^21.0.5`
+  - `@angular/platform-browser`: `^20.3.3` → `^21.0.5`
+  - `@angular/platform-browser-dynamic`: `^20.3.3` → `^21.0.5`
+  - `@angular/router`: `^20.3.3` → `^21.0.5`
+  - `@angular/animations`: `^20.3.3` → `^21.0.5`
+  - `@angular/compiler`: `^20.3.3` → `^21.0.5`
+
+- **Angular Material & CDK**: Updated to Angular 21
+  - `@angular/material`: `^20.2.5` → `^21.0.2`
+  - `@angular/cdk`: `^20.2.5` → `^21.0.2`
+
+- **Angular Development Tools**: Updated to 21.0.5
+  - `@angular/cli`: `^20.3.3` → `^21.0.5`
+  - `@angular/compiler-cli`: `^20.3.3` → `^21.0.5`
+  - `@angular-devkit/build-angular`: `^20.3.3` → `^21.0.5`
+  - `ng-packagr`: `^20.3.0` → `^21.0.0`
+
+- **Library Version**: Bumped to 21.0.0 to align with Angular 21
+  - Major version update following Angular's versioning strategy
+  - Reflects compatibility with Angular 21.x releases
+
+- **Peer Dependencies**: Updated to require Angular 21.0.5+
+  - Library now requires Angular 21.0.5+ for optimal compatibility
+  - Ensures compatibility with latest Angular features and improvements
+
+- **Keywords**: Updated `angular-20` → `angular-21` for better npm discoverability
+
+#### Benefits
+
+- 🚀 **Angular 21 Features**: Access to all new Angular 21 features and improvements
+- 🔧 **Latest Bug Fixes**: Includes all Angular 21.0.5 bug fixes and improvements
+- 🛡️ **Security Updates**: Latest security patches from Angular team
+- ⚡ **Performance**: Enhanced performance optimizations from Angular 21
+- 🔄 **Compatibility**: Better compatibility with other Angular 21.0.5+ packages
+- 🎨 **Material Design**: Updated Material Design components with Angular 21 improvements
+- 📦 **Modern Build**: Leveraging ng-packagr 21.0.0 for optimized library builds
+- 🌟 **Future Ready**: Aligned with Angular's latest release and ready for future updates
+
+#### Breaking Changes
+
+- **Angular 21 Required**: This version requires Angular 21.0.5 or higher
+- **Migration Required**: Projects using Angular 20 or earlier must upgrade to Angular 21
+- **Peer Dependencies**: Strict requirement for Angular 21.0.5+ dependencies
+
+#### Migration Notes
+
+- **Required**: Update your Angular application to 21.0.5 or higher
+- **Angular Update**: Run `ng update @angular/core@21 @angular/cli@21` to upgrade your project
+- **Material Update**: Run `ng update @angular/material@21` to upgrade Angular Material
+- **Testing**: Thoroughly test your application after upgrading to Angular 21
+- **Breaking Changes**: Review [Angular 21 Migration Guide](https://angular.dev/update-guide) for any breaking changes
+
+#### Version Strategy
+
+- **Major Version Bump**: `20.1.0` → `21.0.0` (following semantic versioning)
+- **Angular Alignment**: Major version matches Angular major version (21)
+- **Semantic Versioning**: Breaking changes reflected in major version increment
+- **Future Compatibility**: Prepared for Angular 21.x patch releases
+
+---
+
 ## [20.1.0] - 2025-10-07
 
 ### 🚀 Angular 20.3.3 Update + Enhanced NPM Discoverability - Minor Version Release
