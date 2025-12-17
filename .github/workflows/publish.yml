@@ -4,6 +4,14 @@ name: Publish to npm
 # 🎯 Easy customization: Update these values to customize the workflow for different releases
 # 📦 Library info is dynamically extracted from package.json (Angular version, package size, etc.)
 # 🚀 Release notes are automatically generated with current Angular version information
+# 
+# ⚠️ NPM Token Requirements (as of Dec 2024):
+# - Classic tokens have been revoked by npm
+# - Use Granular Access Tokens (expire in 90 days max)
+# - Create token at: https://www.npmjs.com/settings/YOUR_USERNAME/tokens
+# - Set token as NPM_TOKEN secret in GitHub repo settings
+# - Token needs: "Read and write" permission for packages
+# - Remember to renew token every 90 days!
 env:
   LIBRARY_NAME: "ngx-country-selector"
   SCOPED_NAME: "@evicio1/ngx-country-selector"  # For GitHub Packages
@@ -95,15 +103,6 @@ jobs:
           echo "Latest version on npm: $LATEST_VERSION"
           exit 1
 
-      - name: Verify npm auth
-        if: steps.check_version.outputs.exists == 'false'
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          npm -v
-          node -v
-          npm whoami
-
       - name: Copy additional files to dist
         if: steps.check_version.outputs.exists == 'false'
         run: |
@@ -127,7 +126,10 @@ jobs:
           cd dist/${{ env.LIBRARY_PROJECT }}
           # Remove any problematic git references
           rm -rf .git 2>/dev/null || true
-          npm publish --access public
+          # Publish with provenance (uses OIDC, more secure than classic tokens)
+          # Note: NPM_TOKEN should be a granular token (expires in 90 days)
+          # Recreate token at: https://www.npmjs.com/settings/YOUR_USERNAME/tokens
+          npm publish --access public --provenance
 
       - name: Check if tag already exists
         if: steps.check_version.outputs.exists == 'false'
