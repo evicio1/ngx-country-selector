@@ -66,7 +66,14 @@ Building requires a Node.js version supported by Angular 22 (`^22.22.3`, `^24.15
 
 3. **Missing files**: `npm run build:lib` copies README.md and LICENSE.txt to the dist folder (`postbuild:lib` script)
 
-4. **"Publish to npm" fails with an authentication error (401, 403, 404 or `ENEEDAUTH`)**: The trusted publisher on npmjs.com is missing or does not match this repository and workflow file. See "npm Trusted Publishing Setup" above
+4. **"Publish to npm" fails with `404 Not Found - PUT https://registry.npmjs.org/ngx-country-selector`** (or 401, 403, `ENEEDAUTH`): npm could not authenticate. The package exists; a 404 on publish means "not authorised". The trusted publisher on npmjs.com is missing or does not match this run. The failed step prints the repository and workflow it identified as, and the reason npm recorded. Check each field in "npm Trusted Publishing Setup" above:
+   - it is configured on the **package** (`ngx-country-selector` → Settings), not on your account
+   - **Organization or user** is the GitHub owner `evicio1`, and **Repository** is only `ngx-country-selector`
+   - **Workflow filename** is only `publish.yml`
+   - **Environment name** is empty
+   - `npm publish` is ticked under **Allowed actions** (only `npm stage publish` is allowed by default)
+
+   After fixing it, re-run the failed job. No new commit is needed
 
 5. **Write access to repository not granted**: Fixed by adding proper permissions to the GitHub Actions workflow:
    - Added `contents: write` permission for creating and pushing Git tags
