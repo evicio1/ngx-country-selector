@@ -7,7 +7,7 @@ name: Publish to npm
 env:
   LIBRARY_NAME: "ngx-country-selector"
   SCOPED_NAME: "@evicio1/ngx-country-selector"  # For GitHub Packages
-  NODE_VERSION: "20.x"
+  NODE_VERSION: "24.x"  # Angular 22 requires Node ^22.22.3 || ^24.15.0
   LIBRARY_PROJECT: "country-selector-library"
   
 on:
@@ -26,14 +26,14 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
           persist-credentials: true
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://registry.npmjs.org'
@@ -54,10 +54,13 @@ jobs:
         run: |
           CURRENT_VERSION=$(node -p "require('./projects/${{ env.LIBRARY_PROJECT }}/package.json').version")
           ANGULAR_VERSION=$(node -p "require('./package.json').dependencies['@angular/core']")
-          PACKAGE_SIZE=$(du -sh projects/${{ env.LIBRARY_PROJECT }} | cut -f1)
-          
+          TYPESCRIPT_VERSION=$(node -p "require('./package.json').devDependencies['typescript']")
+          # Size of what gets published (the build output), not of the source folder
+          PACKAGE_SIZE=$(du -sh dist/${{ env.LIBRARY_PROJECT }} | cut -f1)
+
           echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           echo "angular_version=$ANGULAR_VERSION" >> $GITHUB_OUTPUT
+          echo "typescript_version=$TYPESCRIPT_VERSION" >> $GITHUB_OUTPUT
           echo "package_size=$PACKAGE_SIZE" >> $GITHUB_OUTPUT
           
           echo "Package Version: $CURRENT_VERSION"
@@ -104,12 +107,7 @@ jobs:
           node -v
           npm whoami
 
-      - name: Copy additional files to dist
-        if: steps.check_version.outputs.exists == 'false'
-        run: |
-          cp README.md dist/${{ env.LIBRARY_PROJECT }}/
-          cp LICENSE.txt dist/${{ env.LIBRARY_PROJECT }}/
-
+      # README.md and LICENSE.txt are copied into dist by `npm run build:lib` (postbuild:lib)
       - name: Show package info
         if: steps.check_version.outputs.exists == 'false'
         run: |
@@ -161,8 +159,9 @@ jobs:
         run: |
           VERSION="${{ steps.package_info.outputs.version }}"
           ANGULAR_VERSION="${{ steps.package_info.outputs.angular_version }}"
+          TYPESCRIPT_VERSION="${{ steps.package_info.outputs.typescript_version }}"
           PACKAGE_SIZE="${{ steps.package_info.outputs.package_size }}"
-          
+
           # Extract major version from Angular version (e.g., "^20.3.2" -> "20")
           ANGULAR_MAJOR=$(echo $ANGULAR_VERSION | sed 's/[^0-9]*\([0-9]\+\).*/\1/')
           
@@ -173,11 +172,8 @@ jobs:
           ## 🚀 ${{ env.LIBRARY_NAME }} v$VERSION
 
           ### What's New in This Release
-          - **Angular $ANGULAR_MAJOR Support**: Fully compatible with Angular $ANGULAR_VERSION
-          - **Signal Forms Integration**: Native support for Angular's new Signal Forms API
-          - **FormValueControl Interface**: Modern signal-based form control implementation
-          - **Enhanced Performance**: Leverages Angular $ANGULAR_MAJOR's latest optimizations
-          - **Zoneless Ready**: Compatible with Angular's zoneless change detection
+          - **Angular $ANGULAR_MAJOR Support**: Built and tested against Angular $ANGULAR_VERSION
+          - Full list of changes: [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md)
           - Published to npm: https://www.npmjs.com/package/${{ env.LIBRARY_NAME }}
 
           ### 🎯 Key Features
@@ -198,12 +194,12 @@ jobs:
           ### 🛠️ Requirements
           - Angular $ANGULAR_MAJOR+ (any $ANGULAR_MAJOR.x version)
           - Angular Material $ANGULAR_MAJOR+
-          - Node.js 20+ (recommended)
-          - TypeScript 5.9+ (for Angular 21)
+          - A Node.js version supported by Angular $ANGULAR_MAJOR (built with ${{ env.NODE_VERSION }})
+          - TypeScript $TYPESCRIPT_VERSION
 
           ### 💡 Usage with Signal Forms
           \`\`\`typescript
-          import { form, Field, required } from '@angular/forms/signals';
+          import { form, FormField, required } from '@angular/forms/signals';
           import { CountrySelectorLibraryComponent } from 'ngx-country-selector';
 
           // Create signal-based form
@@ -215,7 +211,7 @@ jobs:
 
           \`\`\`html
           <lib-country-selector
-            [field]="myForm.country"
+            [formField]="myForm.country"
             label="Select Country"
           />
           \`\`\`
@@ -223,8 +219,9 @@ jobs:
           ### 📊 Package Information
           - **Package Size**: $PACKAGE_SIZE
           - **Angular Version**: $ANGULAR_VERSION
-          - **TypeScript**: 5.9+ compatible
+          - **TypeScript**: $TYPESCRIPT_VERSION
           - **Dependencies**: Minimal (tslib ^2.3.0)
+          - **Peer Dependencies**: @angular/core, common, forms and material $ANGULAR_MAJOR
           - **Form Support**: Signal Forms (\`FormValueControl\`) + Reactive Forms
 
           ### 🔗 Links
@@ -243,14 +240,16 @@ jobs:
         if: steps.check_version.outputs.exists == 'false' && success()
         run: |
           cd dist/${{ env.LIBRARY_PROJECT }}
-          npm pack
-          TARBALL_NAME=$(ls *.tgz)
+          # Pack next to the package folder: a tarball left inside it would be
+          # shipped as part of the GitHub Packages publish below
+          npm pack --pack-destination ..
+          TARBALL_NAME=$(ls ../*.tgz | xargs -n 1 basename)
           echo "tarball_name=$TARBALL_NAME" >> $GITHUB_ENV
           echo "Created tarball: $TARBALL_NAME"
 
       - name: Create GitHub Release
         if: steps.check_version.outputs.exists == 'false' && success() && steps.check_tag.outputs.exists == 'false'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -258,14 +257,14 @@ jobs:
           name: "🚀 ngx-country-selector v${{ steps.package_info.outputs.version }}"
           body_path: release_notes.md
           files: |
-            dist/${{ env.LIBRARY_PROJECT }}/*.tgz
+            dist/*.tgz
           draft: false
           prerelease: false
           generate_release_notes: true
 
       - name: Setup Node.js for GitHub Packages
         if: steps.check_version.outputs.exists == 'false' && success()
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           registry-url: 'https://npm.pkg.github.com'

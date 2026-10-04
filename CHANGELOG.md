@@ -2,6 +2,59 @@
 
 All notable changes to this project will be documented in this file.
 
+## [22.0.0] - 2026-10-04
+
+### 🚀 Angular 22.2.1 Major Update - Breaking Version Release
+
+#### Updated
+
+- **Angular Framework**: Upgraded to Angular 22.2.1 (latest stable release)
+  - `@angular/core`, `@angular/common`, `@angular/forms`, `@angular/compiler`, `@angular/router`, `@angular/animations`, `@angular/platform-browser`, `@angular/platform-browser-dynamic`: `^21.0.5` → `^22.2.1`
+
+- **Angular Material & CDK**: `^21.0.2` → `^22.2.1`
+
+- **Angular Development Tools**
+  - `@angular/cli`, `@angular/compiler-cli`: → `^22.2.1`
+  - `ng-packagr`: `^21.0.0` → `^22.2.4`
+  - `typescript`: `~5.9.0` → `~6.0.3` (required by Angular 22)
+  - Build system moved from the deprecated `@angular-devkit/build-angular` to `@angular/build`
+
+- **Signal Forms**: Migrated to the stable Angular 22 Signal Forms API
+  - The component is bound with `[formField]` (`FormField` directive) instead of `[field]` (`Field`)
+  - Touched state is reported through the new `touch` output; `touched` is now an input
+  - `WithOptionalField` types replaced by `WithOptionalFieldTree`
+
+- **Peer Dependencies**: Now `^22.0.0`, and `@angular/forms` and `@angular/material` are declared
+  - Both were always required at runtime but were missing from `peerDependencies`
+
+- **Keywords**: Updated `angular-21` → `angular-22`, added `signal-forms`
+
+#### Fixed
+
+- **Validation error was never displayed**: the error message, the invalid (red) state and the required marker of the form field did not show, because the inner input had no form control to take its error state from. The field now reflects the state of the bound form field / `FormControl`
+- **Duplicate error message**: a required error could be rendered twice (once from `error`, once from the schema). A single message is shown now; a schema message takes precedence over the `error` input
+- **Reactive Forms**: `formControl` / `formControlName` work again. Value, disabled, touched, required and error state are synchronised with the `FormControl`
+- **Value that only carries a code**: setting the value to e.g. `{ code: 'in' }` shows the country name, code and flag again (case-insensitive lookup)
+- **Text out of sync with the selection**: text typed without picking an option is discarded when the field loses focus, so the input always shows the selected country
+- **Accessibility**: the visible label is used as the accessible name instead of a hard-coded `aria-label="country"`
+- `required`, `disabled` and `readonly` can be written as plain attributes (`<lib-country-selector readonly>`)
+
+#### Breaking Changes
+
+- **Angular 22 Required**: This version requires Angular 22.0.0 or higher (and Angular Material 22)
+- **Signal Forms binding renamed**: `[field]` → `[formField]`, `Field` → `FormField` (Angular 22 change)
+- **`touched` is no longer a two-way model**: `[(touched)]` is replaced by the `touched` input and the `touch` output. Nothing changes when the component is used through `[formField]`, `formControl` or `formControlName`
+
+#### Migration Notes
+
+- **Angular Update**: Run `ng update @angular/core@22 @angular/cli@22 @angular/material@22`
+- **Signal Forms**: Replace `import { Field }` with `import { FormField }` and `[field]="..."` with `[formField]="..."`
+- **Reactive Forms**: `[required]="true"` is no longer needed next to `Validators.required`; the validator alone drives the required marker and the error
+- **Node.js**: Angular 22 requires Node.js `^22.22.3`, `^24.15.0` or `>=26`
+- **Breaking Changes**: Review the [Angular Update Guide](https://angular.dev/update-guide) for Angular 22
+
+---
+
 ## [21.0.0] - 2025-12-17
 
 ### 🚀 Angular 21.0.5 Major Update - Breaking Version Release

@@ -1,16 +1,16 @@
-import { Component, input, signal } from '@angular/core';
-import { CountrySelectorLibraryComponent } from '../../projects/country-selector-library/src/lib/country-selector-library.component';
+import { ChangeDetectionStrategy, Component, OnInit, signal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, FormField, FormRoot, required } from '@angular/forms/signals';
 
-import { form, Field, required } from '@angular/forms/signals';
-
-import { FormsModule } from '@angular/forms';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
-import { IConfig } from 'country-selector-library';
-import { ICountry } from '../../projects/country-selector-library/src/public-api';
+import {
+  CountrySelectorLibraryComponent,
+  IConfig,
+  ICountry,
+} from '../../projects/country-selector-library/src/public-api';
 
 type LoginModel = {
   username: string;
@@ -20,27 +20,29 @@ type LoginModel = {
 
 @Component({
   selector: 'app-root',
-  standalone: true,
   imports: [
     CountrySelectorLibraryComponent,
 
-    // Signal forms directive
-    Field,
+    // Signal forms directives
+    FormField,
+    FormRoot,
 
-    // Material + forms
-    FormsModule,
+    // Reactive forms (the selector also works with formControl / formControlName)
+    ReactiveFormsModule,
+
+    // Material
     MatFormFieldModule,
     MatInputModule,
-    MatAutocompleteModule,
-    MatSlideToggleModule,
+    MatButtonModule,
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'country-selector';
 
-  shouldCountryLocked = input<boolean>(false);
+  shouldCountryLocked = signal<boolean>(false);
 
   config: IConfig = {
     hideName: false,
@@ -65,20 +67,37 @@ export class AppComponent {
   });
 
   // ✅ Signal Form schema
-  loginForm = form(this.vm, (p) => {
-    required(p.username, { message: 'username is required' });
-    required(p.password, { message: 'Password is required' });
-    required(p.country, { message: 'Country is required' });
+  loginForm = form(
+    this.vm,
+    (p) => {
+      required(p.username, { message: 'username is required' });
+      required(p.password, { message: 'Password is required' });
+      required(p.country, { message: 'Country is required' });
+    },
+    {
+      // [formRoot] marks every field as touched on submit and only runs `action` when valid
+      submission: {
+        action: async () => {
+          alert('Form submitted successfully: ' + JSON.stringify(this.vm()));
+        },
+        onInvalid: () => alert('Please fill all the required fields'),
+      },
+    }
+  );
+
+  // ✅ The same selector bound to a classic reactive form
+  reactiveForm = new FormGroup({
+    country: new FormControl<ICountry | null>(null, Validators.required),
   });
 
   // keep this if you still want your extra event handler
   onCountryChange(country: ICountry | null) {
     this.selectedCountry.set(country);
-    // no manual setValue needed — [field] handles it
+    // no manual setValue needed — [formField] handles it
   }
 
   ngOnInit(): void {
-    setTimeout(() => this.loadCountries(), 10000);
+    setTimeout(() => this.loadCountries(), 2000);
   }
 
   loadCountries = () => {
@@ -86,17 +105,12 @@ export class AppComponent {
     this.loading.set(false);
   };
 
-  onSubmit = () => {
-    // Signal Forms: fields using [field] directive manage their own touched state
-    // Just check if form is valid by checking the values
-    const data = this.vm();
-    
-    if (!data.username || !data.password || !data.country) {
-      alert('Please fill all the required fields');
+  onReactiveSubmit = () => {
+    if (this.reactiveForm.invalid) {
+      this.reactiveForm.markAllAsTouched();
       return;
     }
 
-    // Form is valid, submit
-    alert('Form submitted successfully: ' + JSON.stringify(data));
+    alert('Reactive form submitted successfully: ' + JSON.stringify(this.reactiveForm.value));
   };
 }
