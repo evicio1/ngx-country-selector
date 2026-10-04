@@ -2,29 +2,26 @@
 
 ## Setup Requirements
 
-### 1. NPM Token Setup
+### 1. npm Trusted Publishing Setup
 
-To publish to npm automatically via GitHub Actions, you need to:
+The workflow publishes to npm with [Trusted Publishing](https://docs.npmjs.com/trusted-publishers) (OIDC). GitHub Actions proves its identity to npm for each run, so **no npm token is stored in this repository** and there is nothing to renew.
 
-1. Generate an npm access token:
+This is a one-time setup on npmjs.com, done by a maintainer of the package:
 
-   - Go to https://www.npmjs.com/
-   - Click on your profile picture → "Access Tokens"
-   - Click "Generate New Token" → "Granular Access Token"
-   - Give it a name like "GitHub Actions ngx-country-selector"
-   - Set expiration as desired (npm limits tokens with write access to **90 days**)
-   - Select permissions: "Read and write" for the package
-   - Copy the generated token
+1. Go to https://www.npmjs.com/package/ngx-country-selector → **Settings**
+2. In the **Trusted Publisher** section, choose **GitHub Actions** and fill in:
+   - **Organization or user**: `evicio1`
+   - **Repository**: `ngx-country-selector`
+   - **Workflow filename**: `publish.yml` (the filename only, not the path)
+   - **Environment name**: leave empty
+   - **Allowed actions**: allow `npm publish`
+3. Save. npm asks for your two-factor code.
 
-   **The token expires.** When it does, the workflow fails at the "Verify npm auth" step. Generate a new token and update the `NPM_TOKEN` secret before releasing. To stop rotating tokens, configure [npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers) for this repository and the `publish.yml` workflow instead.
+The values must match exactly. If the repository is renamed or `.github/workflows/publish.yml` is renamed, update the trusted publisher or publishing fails with an authentication error.
 
-2. Add the token to GitHub Secrets:
-   - Go to your repository on GitHub: https://github.com/evicio1/ngx-country-selector
-   - Click Settings → Secrets and variables → Actions
-   - Click "New repository secret"
-   - Name: `NPM_TOKEN`
-   - Value: paste your npm token
-   - Click "Add secret"
+Requirements, all met by the workflow: a GitHub-hosted runner, the `id-token: write` permission, npm 11.5.1 or later and Node.js 22.14.0 or later. Packages published this way get a provenance attestation automatically.
+
+**Why not a token:** npm is retiring token-based publishing from CI. Granular tokens that bypass 2FA lose the ability to publish directly around January 2027 ([announcement](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/)). The old `NPM_TOKEN` repository secret is no longer used and can be deleted. Once trusted publishing works, npm recommends setting the package's **Publishing access** to "Require two-factor authentication and disallow tokens".
 
 ### 2. Version Management
 
@@ -42,7 +39,7 @@ The workflow will automatically:
 
 ### 3. Manual Publishing (Alternative)
 
-If you prefer to publish manually:
+If you prefer to publish manually (you need to be logged in with `npm login`, and npm asks for your two-factor code if 2FA is enabled):
 
 ```bash
 # Build the library (also copies README.md and LICENSE.txt into dist)
@@ -69,11 +66,12 @@ Building requires a Node.js version supported by Angular 22 (`^22.22.3`, `^24.15
 
 3. **Missing files**: `npm run build:lib` copies README.md and LICENSE.txt to the dist folder (`postbuild:lib` script)
 
-4. **`npm whoami` / publish fails with 401 or 403**: The `NPM_TOKEN` secret has expired or lacks write access to the package. See "NPM Token Setup" above
+4. **"Publish to npm" fails with an authentication error (401, 403, 404 or `ENEEDAUTH`)**: The trusted publisher on npmjs.com is missing or does not match this repository and workflow file. See "npm Trusted Publishing Setup" above
 
 5. **Write access to repository not granted**: Fixed by adding proper permissions to the GitHub Actions workflow:
    - Added `contents: write` permission for creating and pushing Git tags
-   - Added `packages: write` permission for npm publishing
+   - Added `packages: write` permission for publishing to GitHub Packages
+   - Added `id-token: write` permission for npm trusted publishing
    - Configured proper authentication with GitHub token
 
 ## Installation Options
