@@ -120,9 +120,18 @@ jobs:
           # Remove any problematic git references
           rm -rf .git 2>/dev/null || true
           # No token: npm exchanges this job's OIDC identity for a short-lived publish
-          # credential and attaches provenance automatically. An auth error here means the
-          # trusted publisher on npmjs.com does not match this repository and workflow file.
-          npm publish --access public
+          # credential and attaches provenance automatically.
+          if ! npm publish --access public; then
+            # When that exchange fails npm publishes without credentials, which the registry
+            # answers with a 404. The actual reason only goes to npm's debug log.
+            echo "::error::npm publish failed. If npm reports a failed token exchange below, the trusted publisher configured for this package on npmjs.com does not match this run."
+            echo "This run identifies itself to npm as:"
+            echo "  repository: ${{ github.repository }}"
+            echo "  workflow:   ${{ github.workflow_ref }}"
+            echo "What npm logged about trusted publishing (OIDC):"
+            grep -h " oidc " "$HOME"/.npm/_logs/*-debug-*.log || echo "  nothing, so npm did not attempt an OIDC exchange"
+            exit 1
+          fi
 
       - name: Check if tag already exists
         if: steps.check_version.outputs.exists == 'false'
