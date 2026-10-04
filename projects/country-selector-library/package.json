@@ -1,10 +1,10 @@
 {
   "name": "ngx-country-selector",
-  "version": "21.0.0",
+  "version": "22.0.0",
   "description": "A modern Angular country selector component with flags, search, and Material Design",
   "keywords": [
     "angular",
-    "angular-21",
+    "angular-22",
     "country",
     "selector",
     "dropdown",
@@ -24,6 +24,7 @@
     "ngx",
     "form-control",
     "reactive-forms",
+    "signal-forms",
     "mat-autocomplete",
     "country-codes",
     "iso-codes",
@@ -42,8 +43,10 @@
     "url": "https://github.com/evicio1/ngx-country-selector/issues"
   },
   "peerDependencies": {
-    "@angular/common": "^21.0.5",
-    "@angular/core": "^21.0.5"
+    "@angular/common": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/forms": "^22.0.0",
+    "@angular/material": "^22.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

@@ -1,4 +1,5 @@
 import {
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -6,7 +7,8 @@ import {
   input,
   model,
   output,
-  signal,
+  untracked,
+  viewChild,
 } from '@angular/core';
 import type { IConfig, ICountry } from './models';
 import {
@@ -20,22 +22,21 @@ import {
   FormValueControl,
   type DisabledReason,
   type ValidationError,
-  type WithOptionalField,
+  type WithOptionalFieldTree,
 } from '@angular/forms/signals';
 
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
-import { MatInputModule } from '@angular/material/input';
+import { ErrorStateMatcher } from '@angular/material/core';
+import { MatInput, MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'lib-country-selector',
   standalone: true,
   imports: [
-    FormsModule,
     MatFormFieldModule,
     MatInputModule,
     MatAutocompleteModule,
@@ -76,21 +77,25 @@ export class CountrySelectorLibraryComponent
 
   readonly onCountryChange = output<ICountry | null>();
 
-  // ---- Signal Forms control contract (required) ----
-  // This is what [field] binds to.
+  // ---- Form control contract (required) ----
+  // This is what [formField] binds to. formControl / formControlName bind to it as well.
   value = model<ICountry | null>(null);
 
-  // ---- Optional state/constraint signals that [field] can supply ---- :contentReference[oaicite:1]{index=1}
-  touched = model(false);
+  // ---- Optional state/constraint signals that the forms directive can supply ----
+  touched = input(false);
+  // Tells the forms directive to mark the bound field as touched.
+  touch = output<void>();
 
-  disabled = input(false);
-  disabledReasons = input<readonly WithOptionalField<DisabledReason>[]>([]);
-  readonly = input(false);
+  // booleanAttribute lets the bare attribute form work too, e.g. <lib-country-selector readonly>
+  disabled = input(false, { transform: booleanAttribute });
+  disabledReasons = input<readonly WithOptionalFieldTree<DisabledReason>[]>([]);
+  readonly = input(false, { transform: booleanAttribute });
   hidden = input(false);
 
-  required = input(false); // comes from schema (required(...))
+  // comes from schema (required(...)) or Validators.required
+  required = input(false, { transform: booleanAttribute });
   invalid = input(false);
-  errors = input<readonly WithOptionalField<ValidationError>[]>([]);
+  errors = input<readonly ValidationError.WithOptionalFieldTree[]>([]);
 
   // ---- Internal UI state ----
   readonly searchText = model('');      // user typed text
@@ -129,21 +134,41 @@ export class CountrySelectorLibraryComponent
   // A single "effective" readonly for the template
   readonly effectiveReadonly = computed(() => this.uiReadonly() || this.readonly());
 
+  // The model may only carry a code (e.g. { code: 'in' }), so look the full country up for display.
+  readonly selectedCountry = computed<ICountry | null>(() => {
+    const value = this.value();
+    if (!value?.code) return null;
+
+    const code = value.code.toLowerCase();
+    return this.countriesExpectBlocked().find(x => x.code.toLowerCase() === code) ?? value;
+  });
+
+  readonly showError = computed(
+    () => this.touched() && (this.invalid() || (this.required() && !this.value()))
+  );
+
+  // Schema errors carry their own message; reactive forms errors don't, so fall back to `error`.
+  readonly errorMessage = computed(
+    () => this.errors().find(e => !!e.message)?.message ?? this.error()
+  );
+
+  // The inner matInput has no form control of its own, so it takes its error state from here.
+  protected readonly errorStateMatcher: ErrorStateMatcher = {
+    isErrorState: () => this.showError(),
+  };
+
+  private readonly matInput = viewChild(MatInput);
+  private readonly selectedText = computed(() => this.displayWith(this.selectedCountry()));
+
   constructor() {
     // Keep the input text in sync when value changes externally (model updates / resets)
+    effect(() => this.restoreText());
+
+    // matInput only re-checks its error state when it owns a form control, so trigger it ourselves
     effect(() => {
-      const country = this.value();
-
-      if (!country) {
-        this.displayText.set('');
-        this.searchText.set('');
-        return;
-      }
-
-      const showLocal = !!this.selectedCountryConfig().showLocalName && !!country.localName;
-      const txt = showLocal ? `${country.name} (${country.localName})` : (country.name ?? '');
-      this.displayText.set(txt);
-      this.searchText.set(txt);
+      this.showError();
+      const matInput = this.matInput();
+      untracked(() => matInput?.updateErrorState());
     });
   }
 
@@ -152,26 +177,47 @@ export class CountrySelectorLibraryComponent
     this.searchText.set(raw);
   }
 
-  onBlur() {
-    this.touched.set(true);
+  onBlur(panelOpen: boolean) {
+    this.touch.emit();
+
+    // With the panel open an option may be mid-click, and re-filtering the list now would lose
+    // that click. onPanelClosed() restores the text in that case.
+    if (!panelOpen) {
+      this.restoreText();
+    }
+  }
+
+  onPanelClosed() {
+    // The panel also closes while typing when nothing matches; leave the text alone then.
+    if (!this.matInput()?.focused) {
+      this.restoreText();
+    }
   }
 
   onCountrySelected($event: MatAutocompleteSelectedEvent) {
     const selected = ($event.option.value as ICountry) ?? null;
     this.value.set(selected);
-    this.touched.set(true);
+    this.touch.emit();
+    // Re-picking the current country leaves value unchanged, so the effect won't reset the text.
+    this.restoreText();
     this.onCountryChange.emit(selected);
   }
 
   clear() {
     this.value.set(null);
-    this.touched.set(true);
+    this.touch.emit();
     this.displayText.set('');
     this.searchText.set('');
     this.onCountryChange.emit(null);
   }
 
-  // (Optional) if your mat-autocomplete displayWith needs it:
+  // Drops text that was typed without picking an option, so the input matches the value again.
+  private restoreText() {
+    const txt = this.selectedText();
+    this.displayText.set(txt);
+    this.searchText.set(txt);
+  }
+
   displayWith = (country: ICountry | null) => {
     if (!country) return '';
     const showLocal = !!this.selectedCountryConfig().showLocalName && !!country.localName;

@@ -1,7 +1,9 @@
-<form autocomplete="off" novalidate (ngSubmit)="onSubmit()">
+<h2>Signal Forms</h2>
+
+<form autocomplete="off" [formRoot]="loginForm">
 
   <lib-country-selector
-    [field]="loginForm.country"
+    [formField]="loginForm.country"
     [allowedCountryCodes]="allowedCountryCode()"
     [countryListConfig]="config"
     [selectedCountryConfig]="selectedConfig"
@@ -15,7 +17,7 @@
 
   <mat-form-field appearance="outline">
     <mat-label>username</mat-label>
-    <input matInput placeholder="username" [field]="loginForm.username" />
+    <input matInput placeholder="username" [formField]="loginForm.username" />
 
     @if (loginForm.username().touched() && loginForm.username().invalid()) {
       <mat-error>
@@ -26,7 +28,7 @@
 
   <mat-form-field appearance="outline">
     <mat-label>Password</mat-label>
-    <input matInput type="password" placeholder="Enter your password" [field]="loginForm.password" />
+    <input matInput type="password" placeholder="Enter your password" [formField]="loginForm.password" />
 
     @if (loginForm.password().touched() && loginForm.password().invalid()) {
       <mat-error>
@@ -35,7 +37,27 @@
     }
   </mat-form-field>
 
-  <button type="submit" mat-raised-button color="primary" class="w-100">Login</button>
+  <button type="submit" matButton="elevated" class="w-100">Login</button>
 </form>
 
-<span>Selected Country: {{ selectedCountry()?.name }}</span>
+<p>Selected Country: {{ selectedCountry()?.name }}</p>
+
+<h2>Reactive Forms</h2>
+
+<form autocomplete="off" [formGroup]="reactiveForm" (ngSubmit)="onReactiveSubmit()">
+  <lib-country-selector
+    formControlName="country"
+    [allowedCountryCodes]="allowedCountryCode()"
+    [countryListConfig]="config"
+    [selectedCountryConfig]="selectedConfig"
+    [loading]="loading()"
+    [readonly]="readonly()"
+    label="Country"
+    [clearable]="true"
+    error="Country is required"
+  ></lib-country-selector>
+
+  <button type="submit" matButton="elevated" class="w-100">Submit</button>
+</form>
+
+<p>Selected Country: {{ reactiveForm.controls.country.value?.name }}</p>

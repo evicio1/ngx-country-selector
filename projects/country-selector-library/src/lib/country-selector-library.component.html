@@ -7,17 +7,19 @@
     matInput
     autocomplete="off"
     type="text"
-    aria-label="country"
+    [attr.aria-label]="label() ? null : 'country'"
     [class]="class()"
     [placeholder]="placeHolder()"
     [readonly]="effectiveReadonly()"
     [disabled]="disabled()"
+    [required]="required()"
+    [errorStateMatcher]="errorStateMatcher"
     [tabIndex]="tabIndex()"
     [matAutocomplete]="auto"
     [name]="name()"
     [value]="displayText()"
     (input)="onTextInput($any($event.target).value)"
-    (blur)="onBlur()"
+    (blur)="onBlur(auto.isOpen)"
   />
 
   @if (loading()) {
@@ -28,6 +30,7 @@
     #auto="matAutocomplete"
     [panelWidth]="panelWidth()"
     (optionSelected)="onCountrySelected($event)"
+    (closed)="onPanelClosed()"
   >
     @for (country of combinedCountryList().preferred.slice(0, 10); track country.code) {
       <mat-option [value]="country">
@@ -37,7 +40,7 @@
           </div>
         }
         @if (!countryListConfig().hideCode) {
-          <span class="ipv_code-box">{{ country?.code }}</span>
+          <span class="ipv_code-box">{{ country.code }}</span>
         }
         @if (!countryListConfig().hideName) {
           <span class="ipv_country-name">{{ country.name }}</span>
@@ -57,7 +60,7 @@
           </div>
         }
         @if (!countryListConfig().hideCode) {
-          <span class="ipv_code-box">{{ country?.code }}</span>
+          <span class="ipv_code-box">{{ country.code }}</span>
         }
         @if (!countryListConfig().hideName) {
           <span class="ipv_country-name">
@@ -72,27 +75,23 @@
   </mat-autocomplete>
 
   <div class="d-flex mr-1" matSuffix>
-    @if (!selectedCountryConfig().hideCode && !!value()) {
-      <span class="ipv_code-box">{{ value()?.code }}</span>
-    }
-    @if (!selectedCountryConfig().hideFlag && !!value()) {
-      <div class="ipv_flag-box">
-        <div class="ipv_flag ipv_{{ value()?.code?.toLowerCase() }}"></div>
-      </div>
-    }
-    @if (!disabled() && !effectiveReadonly() && clearable() && !!value()) {
-      <mat-icon class="ml-1 cursor-pointer pos-rel" (click)="clear()">cancel</mat-icon>
+    @if (selectedCountry(); as selected) {
+      @if (!selectedCountryConfig().hideCode) {
+        <span class="ipv_code-box">{{ selected.code }}</span>
+      }
+      @if (!selectedCountryConfig().hideFlag) {
+        <div class="ipv_flag-box">
+          <div class="ipv_flag ipv_{{ selected.code.toLowerCase() }}"></div>
+        </div>
+      }
+      @if (!disabled() && !effectiveReadonly() && clearable()) {
+        <mat-icon class="ml-1 cursor-pointer pos-rel" (click)="clear()">cancel</mat-icon>
+      }
     }
   </div>
 
-  <!-- required error (Signal Forms) -->
-  @if (required() && touched() && !value()) {
-    <mat-error>{{ error() }}</mat-error>
-  }
-
-  <!-- optional: show schema errors too -->
-  @if (invalid() && touched() && errors().length) {
-    <mat-error>{{ errors()[0]?.message ?? error() }}</mat-error>
+  @if (showError()) {
+    <mat-error>{{ errorMessage() }}</mat-error>
   }
 
   @if (hint()) {

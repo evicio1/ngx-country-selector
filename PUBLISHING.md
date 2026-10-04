@@ -12,9 +12,11 @@ To publish to npm automatically via GitHub Actions, you need to:
    - Click on your profile picture → "Access Tokens"
    - Click "Generate New Token" → "Granular Access Token"
    - Give it a name like "GitHub Actions ngx-country-selector"
-   - Set expiration as desired
+   - Set expiration as desired (npm limits tokens with write access to **90 days**)
    - Select permissions: "Read and write" for the package
    - Copy the generated token
+
+   **The token expires.** When it does, the workflow fails at the "Verify npm auth" step. Generate a new token and update the `NPM_TOKEN` secret before releasing. To stop rotating tokens, configure [npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers) for this repository and the `publish.yml` workflow instead.
 
 2. Add the token to GitHub Secrets:
    - Go to your repository on GitHub: https://github.com/evicio1/ngx-country-selector
@@ -28,9 +30,9 @@ To publish to npm automatically via GitHub Actions, you need to:
 
 The workflow will automatically:
 
+- Build the library (this also copies `README.md` and `LICENSE.txt` into the package)
 - Check if the current version already exists on npm
 - **Stop and fail if the version exists** (you need to manually update the version)
-- Build the library
 - Publish to npm only if the version is new
 - **Create a GitHub Release** with release notes and package tarball
 - **Publish to GitHub Packages** (as @evicio1/ngx-country-selector)
@@ -43,13 +45,15 @@ The workflow will automatically:
 If you prefer to publish manually:
 
 ```bash
-# Build the library
+# Build the library (also copies README.md and LICENSE.txt into dist)
 npm run build:lib
 
 # Navigate to dist folder and publish
 cd dist/country-selector-library
 npm publish --access public
 ```
+
+Building requires a Node.js version supported by Angular 22 (`^22.22.3`, `^24.15.0` or `>=26`). The workflow uses Node.js 24.
 
 ## Troubleshooting
 
@@ -61,11 +65,13 @@ npm publish --access public
    - Running npm publish from within the dist directory
    - Properly configuring git credentials
 
-2. **Version already exists**: The workflow now automatically checks and bumps versions
+2. **Version already exists**: The workflow checks for this and fails. Update the version in `projects/country-selector-library/package.json` and push again
 
-3. **Missing files**: The workflow now copies README.md and LICENSE.txt to the dist folder
+3. **Missing files**: `npm run build:lib` copies README.md and LICENSE.txt to the dist folder (`postbuild:lib` script)
 
-4. **Write access to repository not granted**: Fixed by adding proper permissions to the GitHub Actions workflow:
+4. **`npm whoami` / publish fails with 401 or 403**: The `NPM_TOKEN` secret has expired or lacks write access to the package. See "NPM Token Setup" above
+
+5. **Write access to repository not granted**: Fixed by adding proper permissions to the GitHub Actions workflow:
    - Added `contents: write` permission for creating and pushing Git tags
    - Added `packages: write` permission for npm publishing
    - Configured proper authentication with GitHub token
@@ -101,8 +107,8 @@ Users can also download the tarball directly from the Releases page:
 ## Current Package Information
 
 - **Package Name**: ngx-country-selector
-- **Current Version**: 20.0.0
-- **Angular Version**: 20+ (any 20.x version)
+- **Current Version**: 22.0.0
+- **Angular Version**: 22+ (any 22.x version)
 - **NPM URL**: https://www.npmjs.com/package/ngx-country-selector
 - **GitHub Packages**: @evicio1/ngx-country-selector
 - **Repository**: https://github.com/evicio1/ngx-country-selector
@@ -118,6 +124,7 @@ Starting with version 20.0.0, this library follows a **Major-Minor-Patch** patte
 - **Major Version** (20.x.x): Matches Angular major version
   - `20.x.x` = Compatible with Angular 20+ (any 20.x version)
   - `21.x.x` = Compatible with Angular 21+ (any 21.x version)
+  - `22.x.x` = Compatible with Angular 22+ (any 22.x version)
 - **Minor Version** (x.1.x): New features, enhancements, non-breaking changes
   - `20.1.0` = New feature added
   - `20.2.0` = Another feature added
@@ -134,6 +141,7 @@ npm install ngx-country-selector@20.0.0  # Works with Angular 20.0.x, 20.1.x, 20
 # Future versions
 npm install ngx-country-selector@20.1.0  # New features for Angular 20
 npm install ngx-country-selector@21.0.0  # Angular 21 support
+npm install ngx-country-selector@22.0.0  # Angular 22 support
 ```
 
 ### Benefits:
@@ -146,7 +154,7 @@ npm install ngx-country-selector@21.0.0  # Angular 21 support
 ## Publishing Process
 
 1. Make your changes to the library
-2. **Update version in `projects/country-selector-library/package.json` to a new version**
+2. **Update version in `projects/country-selector-library/package.json` to a new version** and add an entry to `CHANGELOG.md`
 3. Commit and push to master branch
 4. GitHub Actions will automatically:
    - Build and publish to npm (if version is new)

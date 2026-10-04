@@ -13,19 +13,30 @@ A modern, feature-rich Angular country selector component built with **Angular M
 - 🎯 **Highly Customizable** - Extensive configuration options for appearance and behavior
 - ♿ **Accessible** - Full accessibility support with ARIA attributes
 - 📱 **Responsive** - Works seamlessly across all device sizes
-- 🔧 **Angular 21 Ready** - Compatible with the latest Angular version
+- 🔧 **Angular 22 Ready** - Compatible with the latest Angular version
 
 ## 🛠️ Built With
 
-- **Angular 21+** - Modern Angular framework with Signal Forms
-- **Angular Material 21+** - Material Design components (mat-form-field, mat-autocomplete, mat-input, mat-icon, mat-progress-bar, mat-divider)
-- **TypeScript 5.9+** - Type-safe development experience
+- **Angular 22+** - Modern Angular framework with Signal Forms
+- **Angular Material 22+** - Material Design components (mat-form-field, mat-autocomplete, mat-input, mat-icon, mat-progress-bar, mat-divider)
+- **TypeScript 6.0** - Type-safe development experience
 - **SCSS** - Styled with modern CSS preprocessor
 - **Signal Forms API** - Implements `FormValueControl` interface for modern form integration
 
 *Note: Angular CDK is included as a peer dependency of Angular Material but is not directly used by this library.*
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) and updated to Angular 21.
+This library was generated with [Angular CLI](https://github.com/angular/angular-cli) and updated to Angular 22.
+
+## 🔢 Compatibility
+
+The major version of the library matches the Angular major version it is built for.
+
+| ngx-country-selector | Angular |
+| -------------------- | ------- |
+| 22.x                 | 22.x    |
+| 21.x                 | 21.x    |
+| 20.x                 | 20.x    |
+| 19.x                 | 19.x    |
 
 ## 📋 Prerequisites
 
@@ -36,6 +47,8 @@ If you don't have Angular Material installed:
 ```bash
 ng add @angular/material
 ```
+
+`@angular/material` and `@angular/forms` are peer dependencies of this library (along with `@angular/core` and `@angular/common`).
 
 ## 🚀 Getting started
 
@@ -112,13 +125,43 @@ npm i ngx-country-selector
  </tr>
   <tr>
   <td><b>label</b></td>
-  <td>Type: <b>string</b> Default value: 'Select country'</td>
+  <td>Type: <b>string</b> Default value: ''</td>
   <td>`mat-form-field` label's text</td>
  </tr>
  <tr>
-  <td><b>placeholderText</b></td>
+  <td><b>placeHolder</b></td>
   <td>Type: <b>string</b> Default value: 'Select country'</td>
   <td>To change the default placeholder label.</td>
+ </tr>
+ <tr>
+  <td><b>hint</b></td>
+  <td>Type: <b>string</b> Default value: undefined</td>
+  <td>Hint text shown below the field.</td>
+ </tr>
+ <tr>
+  <td><b>appearance</b></td>
+  <td>Type: <b>'fill' | 'outline'</b> Default value: 'outline'</td>
+  <td>`mat-form-field` appearance.</td>
+ </tr>
+ <tr>
+  <td><b>extendWidth</b></td>
+  <td>Type: <b>boolean</b> Default value: false</td>
+  <td>Makes the field take the full width of its container.</td>
+ </tr>
+ <tr>
+  <td><b>panelWidth</b></td>
+  <td>Type: <b>string</b> Default value: ''</td>
+  <td>Width of the country list panel, e.g. '320px'.</td>
+ </tr>
+ <tr>
+  <td><b>customNaming</b></td>
+  <td>Type: <b>{ [code: string]: string }</b> Default value: {}</td>
+  <td>Overrides country names by lower-case country code, e.g. { gb: 'United Kingdom' }.</td>
+ </tr>
+ <tr>
+  <td><b>class</b>, <b>name</b>, <b>tabIndex</b></td>
+  <td>Type: <b>string</b>, <b>string</b>, <b>number</b></td>
+  <td>Passed through to the inner input element. With Signal Forms, `name` is set from the bound field.</td>
  </tr>
  <tr>
   <td><b>loading</b></td>
@@ -128,7 +171,17 @@ npm i ngx-country-selector
 <tr>
   <td><b>readonly</b></td>
   <td>Type: <b>boolean</b> Default value: false</td>
-  <td>Whether the component is read only.</td>
+  <td>Whether the component is read only. With Signal Forms this is driven by the schema (`readonly(...)`) and cannot be bound next to `[formField]`; use <b>uiReadonly</b> for that case.</td>
+ </tr>
+ <tr>
+  <td><b>uiReadonly</b></td>
+  <td>Type: <b>boolean</b> Default value: false</td>
+  <td>Makes the component read only regardless of the form state. Works with every forms API.</td>
+ </tr>
+ <tr>
+  <td><b>disabled</b></td>
+  <td>Type: <b>boolean</b> Default value: false</td>
+  <td>Whether the component is disabled. Set automatically by Signal Forms and Reactive Forms.</td>
  </tr>
   <tr>
   <td><b>clearable</b></td>
@@ -138,12 +191,12 @@ npm i ngx-country-selector
  <tr>
   <td><b>required</b></td>
   <td>Type: <b>boolean</b> Default value: false</td>
-  <td>Whether the component is required. Note: `FormControl` validator need to be setup too</td>
+  <td>Whether the component is required. Set automatically from the form: `required(...)` in a Signal Forms schema or `Validators.required` on a `FormControl`. Shows the required marker on the label.</td>
  </tr>
  <tr>
   <td><b>error</b></td>
   <td>Type: <b>string</b> Default value: ''</td>
-  <td>To set the error message for required validation.</td>
+  <td>The message shown when the field is touched and invalid. A message defined in a Signal Forms schema takes precedence.</td>
  </tr>
 </tbody></table>
 
@@ -158,12 +211,12 @@ npm i ngx-country-selector
 
 </tbody></table>
 
-### Signal Forms (Angular 21+)
+### Signal Forms
 
-**Recommended for Angular 21+ applications:**
+**Recommended for new applications:**
 
 ```typescript
-import { form, Field, required } from '@angular/forms/signals';
+import { form, FormField, required } from '@angular/forms/signals';
 import { signal } from '@angular/core';
 
 // Define your model
@@ -188,9 +241,9 @@ loginForm = form(this.vm, (p) => {
 ```
 
 ```html
-<!-- Import Field directive in your component -->
+<!-- Import the FormField directive in your component -->
 <lib-country-selector
-  [field]="loginForm.country"
+  [formField]="loginForm.country"
   [allowedCountryCodes]="allowedCountryCode()"
   [countryListConfig]="config"
   [selectedCountryConfig]="selectedConfig"
@@ -209,6 +262,8 @@ loginForm = form(this.vm, (p) => {
 - 🎯 Type-safe form models
 - 🔧 Automatic validation and error handling
 
+> **Upgrading from 21.x:** Signal Forms became stable in Angular 22 and the directive was renamed. Replace the `Field` import with `FormField` and `[field]="..."` with `[formField]="..."`.
+
 ### Reactive Forms (Traditional)
 
 **For applications using traditional reactive forms:**
@@ -217,8 +272,9 @@ loginForm = form(this.vm, (p) => {
 loginForm = new FormGroup({
   username: new FormControl('', [Validators.required]),
   password: new FormControl('', Validators.required),
+  // a value that only carries the code is enough, the component looks the country up
   country: new FormControl({value: {code:'in'} as ICountry | null, disabled: false},
-    Validators.required), // need to send both validator and required input value to make it work
+    Validators.required), // the validator also drives the required marker and the error
 });
 ```
 
@@ -235,11 +291,10 @@ loginForm = new FormGroup({
   formControlName="country"
   (onCountryChange)="onCountryChange($event)"
   error="Country is required"
-  [required]="true"
 ></lib-country-selector>
 ```
 
-**Note:** The component supports both Signal Forms and traditional Reactive Forms, allowing for gradual migration.
+**Note:** The component supports both Signal Forms and traditional Reactive Forms (`formControl` / `formControlName`), allowing for gradual migration. Disabled, touched, required and error state are picked up from the `FormControl` automatically, so no extra inputs are needed.
 
 ### IConfig properties and usage
 
@@ -372,7 +427,7 @@ output in console
 export interface ICountry {
   name?: string;
   localName?: string;
-  code?: string;
+  code: string;
   capital?: string;
   region?: string;
   currency?: ICurrency
